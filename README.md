@@ -19,9 +19,9 @@ An automated, self-healing rapid prototyping platform running a headless AI agen
 
 ---
 
-## 🏆 Completed Milestone Projects
+## 🏆 Completed Milestone Project
 
-The following applications have been successfully scaffolded, tested, and archived using this engine:
+The following application has been successfully scaffolded, tested, and archived using this engine:
 
 ### 🏙️ Milestone 1: Isometric City Building Sandbox
 *   **Simulation Ticker Loop:** Implemented a synchronized Delta-Time logic engine running on a background interval loop to dynamically compute multi-variable economic yields (Gold generation, Population capacity, and Power grid requirements).
