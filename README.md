@@ -24,7 +24,7 @@ An automated, self-healing rapid prototyping platform running a headless AI agen
 The following application has been successfully scaffolded, tested, and archived using this engine:
 
 ### 🏙️ Milestone 1: Isometric City Building Sandbox
-*   **Simulation Ticker Loop:** Implemented a synchronized Delta-Time logic engine running on a background interval loop to dynamically compute multi-variable economic yields (Gold generation, Population capacity, and Power grid requirements).
+*   **Simulation Ticker Loop:** Implemented a synchronized Delta-Time logic engine running on a background interval loop to dynamically compute multivariable economic yields (Gold generation, Population capacity, and Power grid requirements).
 *   **Affine Coordinate Viewport:** Rendered an 8x8 grass map grid utilizing a rotated spatial projection layout (`rotateX(60deg) rotateZ(-45deg)`) supporting dynamic hover styling and item coordinate placement.
 
 ---
