@@ -1,0 +1,5 @@
+aider-chat
+fastapi
+uvicorn
+python-telegram-bot
+httpx
