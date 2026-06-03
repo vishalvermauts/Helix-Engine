@@ -3,9 +3,11 @@ import sys
 import asyncio
 import subprocess
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from dotenv import load_dotenv
 import httpx
+from starlette.middleware.sessions import SessionMiddleware
+from authlib.integrations.starlette_client import OAuth
 
 # 1. LOAD SYSTEM ENVIRONMENT CONFIGURATION
 ENV_PATH = "/workspaces/AirCode/.env"
@@ -16,20 +18,34 @@ else:
 
 # 2. EXTRACT VALIDATED SYSTEM VARIABLES
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-ALLOWED_USER_ID = os.getenv("ALLOWED_USER_ID")
+SECRET_KEY = os.getenv("SECRET_KEY")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+SERVER_BASE_URL = os.getenv("SERVER_BASE_URL")
 
-if not TELEGRAM_TOKEN or not ALLOWED_USER_ID:
-    print("❌ ERROR: TELEGRAM_TOKEN or ALLOWED_USER_ID is missing from .env file!")
+if not all([TELEGRAM_TOKEN, SECRET_KEY, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SERVER_BASE_URL]):
+    print("❌ ERROR: Required environment variables are missing from .env file!")
+    print("Required: TELEGRAM_TOKEN, SECRET_KEY, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SERVER_BASE_URL")
     sys.exit(1)
 
-try:
-    ALLOWED_USER_ID = int(ALLOWED_USER_ID)
-except ValueError:
-    print("❌ ERROR: ALLOWED_USER_ID in .env must be a valid numeric ID!")
-    sys.exit(1)
+# In-memory store for authorized user IDs.
+# In a production environment, this should be a persistent database.
+AUTHORIZED_TELEGRAM_IDS = set()
 
 # 3. INITIALIZE FASTAPI INTERFACE
 app = FastAPI(title="AirCode Engine Webhook Gateway")
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
+
+oauth = OAuth()
+oauth.register(
+    name='google',
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_id=GOOGLE_CLIENT_ID,
+    client_secret=GOOGLE_CLIENT_SECRET,
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
+)
 
 # Global concurrency lock to prevent simultaneous Git/Aider write operations
 pipeline_lock = asyncio.Lock()
@@ -47,6 +63,42 @@ async def send_telegram_message(chat_id: int, text: str):
 @app.get("/")
 async def root_check():
     return {"status": "online", "engine": "AirCode", "gateway": "FastAPI"}
+
+@app.get("/login")
+async def login(request: Request):
+    """Initiates OAuth2 login flow with Google."""
+    user_id = request.query_params.get('user_id')
+    if not user_id:
+        raise HTTPException(status_code=400, detail="Missing user_id query parameter.")
+    
+    request.session['telegram_user_id'] = user_id
+    
+    redirect_uri = f"{SERVER_BASE_URL}/auth"
+    return await oauth.google.authorize_redirect(request, redirect_uri)
+
+@app.get("/auth")
+async def auth(request: Request):
+    """OAuth2 callback endpoint."""
+    try:
+        token = await oauth.google.authorize_access_token(request)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Could not authorize access token: {e}")
+
+    user_info = await oauth.google.parse_id_token(request, token)
+    telegram_user_id = request.session.pop('telegram_user_id', None)
+
+    if telegram_user_id:
+        AUTHORIZED_TELEGRAM_IDS.add(int(telegram_user_id))
+        print(f"✅ User {telegram_user_id} ({user_info.get('email')}) has been authorized.")
+        await send_telegram_message(
+            int(telegram_user_id), 
+            "✅ You have been successfully authenticated! You can now send prompts."
+        )
+        return JSONResponse(
+            {'status': 'ok', 'message': 'Successfully authenticated.'}
+        )
+    
+    raise HTTPException(status_code=400, detail="Authentication failed, session context lost.")
 
 @app.post("/webhook")
 async def telegram_webhook_gateway(request: Request):
@@ -71,10 +123,15 @@ async def telegram_webhook_gateway(request: Request):
     if not chat_id or not user_id:
         return JSONResponse(status_code=200, content={"status": "ignored", "reason": "Missing metadata indices"})
 
-    # 🛑 FIREWALL CHECK: Instant lockout if the user ID doesn't match your whitelisted profile
-    if user_id != ALLOWED_USER_ID:
+    # Handle built-in auth requests for un-authed users
+    if user_id not in AUTHORIZED_TELEGRAM_IDS:
+        if prompt.lower() == '/login':
+            login_url = f"{SERVER_BASE_URL}/login?user_id={user_id}"
+            await send_telegram_message(chat_id, f"Please log in to authorize this chat:\n\n{login_url}")
+            return JSONResponse(status_code=200, content={"status": "login_url_sent"})
+        
         print(f"🔒 Security Alert: Unauthorized webhook interaction rejected from User ID {user_id}")
-        await send_telegram_message(chat_id, "❌ Access Denied: Unauthorized terminal operator footprint detected.")
+        await send_telegram_message(chat_id, "❌ Access Denied. Please use /login to authorize.")
         return JSONResponse(status_code=200, content={"status": "denied"})
 
     if not prompt:
@@ -84,6 +141,10 @@ async def telegram_webhook_gateway(request: Request):
     if prompt.lower() in ["/status", "status"]:
         await send_telegram_message(chat_id, "✅ AirCode Engine Core is online, authenticated, and ready to compile!")
         return JSONResponse(status_code=200, content={"status": "status_delivered"})
+
+    if prompt.lower() == '/login':
+        await send_telegram_message(chat_id, "✅ You are already authenticated.")
+        return JSONResponse(status_code=200, content={"status": "already_authenticated"})
 
     # Trigger Aider code generation context asynchronously to prevent webhook time-outs
     asyncio.create_task(execute_aider_compilation(chat_id, prompt))
