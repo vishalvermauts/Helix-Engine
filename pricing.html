@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Our Pricing</title>
+    <style>
+      :root {
+        --primary-color: #6366f1;
+        --secondary-color: #ec4899;
+        --bg-color: #f9fafb;
+        --text-color: #111827;
+        --card-bg: #ffffff;
+        --border-color: #e5e7eb;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        text-align: center;
+      }
+
+      nav {
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      nav .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: left;
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+
+      nav .logo {
+        font-weight: bold;
+        font-size: 1.5rem;
+        text-decoration: none;
+        color: var(--text-color);
+      }
+
+      nav ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      nav a {
+        text-decoration: none;
+        color: #6b7280;
+        font-weight: 500;
+      }
+
+      nav a:hover {
+        color: var(--primary-color);
+      }
+
+      header {
+        padding: 2rem 0;
+      }
+
+      header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      header p {
+        font-size: 1.125rem;
+        color: #6b7280;
+      }
+
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+      }
+
+      .pricing-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 0.75rem;
+        padding: 2rem;
+        text-align: left;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition:
+          transform 0.3s,
+          box-shadow 0.3s;
+      }
+
+      .pricing-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .pricing-card.featured {
+        border-color: var(--primary-color);
+        border-width: 2px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .featured-badge {
+        position: absolute;
+        top: 15px;
+        right: -30px;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 5px 30px;
+        transform: rotate(45deg);
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      .pricing-card h2 {
+        font-size: 1.5rem;
+        margin-top: 0;
+      }
+
+      .price {
+        font-size: 3rem;
+        font-weight: bold;
+        margin: 1rem 0;
+      }
+
+      .price .period {
+        font-size: 1rem;
+        font-weight: normal;
+        color: #6b7280;
+      }
+
+      .features {
+        list-style: none;
+        padding: 0;
+        margin: 2rem 0;
+      }
+
+      .features li {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .features li::before {
+        content: "✓";
+        color: var(--primary-color);
+        margin-right: 0.75rem;
+        font-weight: bold;
+      }
+
+      .cta-button {
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        border: 1px solid var(--primary-color);
+        border-radius: 0.5rem;
+        background-color: var(--primary-color);
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        font-size: 1rem;
+        font-weight: 600;
+        transition:
+          background-color 0.3s,
+          color 0.3s;
+      }
+
+      .pricing-card:not(.featured) .cta-button {
+        background-color: transparent;
+        color: var(--primary-color);
+      }
+
+      .pricing-card:not(.featured) .cta-button:hover {
+        background-color: var(--primary-color);
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="container">
+        <a href="index.html" class="logo">HelixApp</a>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <header class="container">
+      <h1>Our Pricing</h1>
+      <p>
+        Choose the plan that's right for you. No hidden fees, cancel anytime.
+      </p>
+    </header>
+
+    <main>
+      <div class="pricing-grid container">
+        <article class="pricing-card">
+          <h2>Starter</h2>
+          <p class="price">$19<span class="period">/month</span></p>
+          <p>Perfect for individuals and small teams just getting started.</p>
+          <ul class="features">
+            <li>10 Projects</li>
+            <li>5 GB Storage</li>
+            <li>Basic Analytics</li>
+            <li>Community Support</li>
+          </ul>
+          <a href="signup.html" class="cta-button">Choose Plan</a>
+        </article>
+
+        <article class="pricing-card featured">
+          <div class="featured-badge">Most Popular</div>
+          <h2>Pro</h2>
+          <p class="price">$49<span class="period">/month</span></p>
+          <p>For growing businesses that need more power and support.</p>
+          <ul class="features">
+            <li>Unlimited Projects</li>
+            <li>50 GB Storage</li>
+            <li>Advanced Analytics</li>
+            <li>Priority Email Support</li>
+          </ul>
+          <a href="signup.html" class="cta-button">Choose Plan</a>
+        </article>
+
+        <article class="pricing-card">
+          <h2>Enterprise</h2>
+          <p class="price">Custom</p>
+          <p>Tailored solutions for large organizations with specific needs.</p>
+          <ul class="features">
+            <li>Everything in Pro</li>
+            <li>Unlimited Storage</li>
+            <li>Dedicated Account Manager</li>
+            <li>24/7 Phone Support</li>
+          </ul>
+          <a href="contact.html" class="cta-button">Contact Us</a>
+        </article>
+      </div>
+    </main>
+  </body>
+</html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Our Pricing</title>
+    <style>
+      :root {
+        --primary-color: #007bff;
+        --secondary-color: #6c757d;
+        --background-color: #f8f9fa;
+        --card-background: #ffffff;
+        --text-color: #333;
+        --light-text-color: #fff;
+        --border-color: #dee2e6;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        text-align: center;
+      }
+
+      header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      header p {
+        font-size: 1.1rem;
+        color: var(--secondary-color);
+        margin-bottom: 3rem;
+      }
+
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+      }
+
+      .pricing-card {
+        background-color: var(--card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+
+      .pricing-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .pricing-card.popular {
+        border-color: var(--primary-color);
+        border-width: 2px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .pricing-card.popular::before {
+        content: "Most Popular";
+        position: absolute;
+        top: 18px;
+        right: -30px;
+        background: var(--primary-color);
+        color: var(--light-text-color);
+        padding: 5px 30px;
+        transform: rotate(45deg);
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      .pricing-card h2 {
+        font-size: 1.5rem;
+        margin-top: 0;
+      }
+
+      .price {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 1rem 0;
+      }
+
+      .price .period {
+        font-size: 1rem;
+        font-weight: normal;
+        color: var(--secondary-color);
+      }
+
+      .features {
+        list-style: none;
+        padding: 0;
+        margin: 2rem 0;
+        text-align: left;
+      }
+
+      .features li {
+        margin-bottom: 0.75rem;
+        padding-left: 1.5rem;
+        position: relative;
+      }
+
+      .features li::before {
+        content: "✔";
+        color: var(--primary-color);
+        position: absolute;
+        left: 0;
+      }
+
+      .cta-button {
+        display: inline-block;
+        width: 100%;
+        padding: 0.75rem 1.5rem;
+        background-color: var(--primary-color);
+        color: var(--light-text-color);
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        border: 1px solid var(--primary-color);
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
+
+      .cta-button:hover {
+        background-color: #0056b3;
+      }
+
+      .pricing-card:not(.popular) .cta-button {
+        background-color: transparent;
+        color: var(--primary-color);
+      }
+
+      .pricing-card:not(.popular) .cta-button:hover {
+        background-color: var(--primary-color);
+        color: var(--light-text-color);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Our Pricing</h1>
+        <p>Choose the plan that's right for you. No hidden fees.</p>
+      </header>
+
+      <main class="pricing-grid">
+        <article class="pricing-card">
+          <h2>Basic</h2>
+          <p class="price">$9<span class="period">/month</span></p>
+          <ul class="features">
+            <li>10 Projects</li>
+            <li>5 GB Storage</li>
+            <li>Basic Analytics</li>
+            <li>Community Support</li>
+          </ul>
+          <a href="signup.html" class="cta-button">Choose Plan</a>
+        </article>
+
+        <article class="pricing-card popular">
+          <h2>Pro</h2>
+          <p class="price">$29<span class="period">/month</span></p>
+          <ul class="features">
+            <li>Unlimited Projects</li>
+            <li>50 GB Storage</li>
+            <li>Advanced Analytics</li>
+            <li>Priority Email Support</li>
+          </ul>
+          <a href="signup.html" class="cta-button">Choose Plan</a>
+        </article>
+
+        <article class="pricing-card">
+          <h2>Enterprise</h2>
+          <p class="price">Contact Us</p>
+          <ul class="features">
+            <li>Everything in Pro</li>
+            <li>Unlimited Storage</li>
+            <li>Dedicated Account Manager</li>
+            <li>24/7 Phone Support</li>
+          </ul>
+          <a href="contact.html" class="cta-button">Contact Sales</a>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Our Pricing</title>
+    <style>
+      :root {
+        --primary-color: #007bff;
+        --secondary-color: #6c757d;
+        --background-color: #f8f9fa;
+        --card-background: #ffffff;
+        --text-color: #343a40;
+        --light-text-color: #ffffff;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      header {
+        background-color: var(--card-background);
+        padding: 1rem 0;
+        border-bottom: 1px solid #dee2e6;
+      }
+
+      header .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-decoration: none;
+        color: var(--text-color);
+      }
+
+      nav a {
+        color: var(--secondary-color);
+        text-decoration: none;
+        margin-left: 20px;
+      }
+
+      nav a:hover {
+        color: var(--primary-color);
+      }
+
+      main {
+        padding: 4rem 0;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        color: var(--secondary-color);
+        margin-bottom: 3rem;
+      }
+
+      .pricing-grid {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;
+      }
+
+      .pricing-card {
+        background-color: var(--card-background);
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 2rem;
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .pricing-card.popular {
+        border-color: var(--primary-color);
+        border-width: 2px;
+        position: relative;
+      }
+
+      .pricing-card h2 {
+        font-size: 1.5rem;
+        margin-top: 0;
+      }
+
+      .price {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 0.5rem 0;
+      }
+
+      .price .period {
+        font-size: 1rem;
+        font-weight: normal;
+        color: var(--secondary-color);
+      }
+
+      .features {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0;
+        flex-grow: 1;
+      }
+
+      .features li {
+        margin-bottom: 0.75rem;
+        padding-left: 25px;
+        position: relative;
+      }
+
+      .features li::before {
+        content: "✓";
+        color: var(--primary-color);
+        position: absolute;
+        left: 0;
+      }
+
+      .cta-button {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--primary-color);
+        border-radius: 5px;
+        background-color: var(--primary-color);
+        color: var(--light-text-color);
+        text-align: center;
+        text-decoration: none;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition:
+          background-color 0.2s,
+          color 0.2s;
+      }
+
+      .cta-button:hover {
+        background-color: #0056b3;
+      }
+
+      .cta-button.secondary {
+        background-color: transparent;
+        color: var(--primary-color);
+      }
+
+      .cta-button.secondary:hover {
+        background-color: var(--primary-color);
+        color: var(--light-text-color);
+      }
+
+      footer {
+        text-align: center;
+        padding: 2rem 0;
+        margin-top: 2rem;
+        background-color: var(--card-background);
+        border-top: 1px solid #dee2e6;
+      }
+
+      @media (max-width: 992px) {
+        .pricing-grid {
+          flex-direction: column;
+          align-items: center;
+        }
+        .pricing-card {
+          width: 80%;
+          max-width: 400px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <a href="index.html" class="logo">WebApp</a>
+        <nav>
+          <a href="features.html">Features</a>
+          <a href="pricing.html">Pricing</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <h1>Our Pricing</h1>
+        <p class="subtitle">
+          Choose the plan that's right for you. Simple, transparent pricing.
+        </p>
+
+        <div class="pricing-grid">
+          <section class="pricing-card">
+            <h2>Basic</h2>
+            <p class="price">$10<span class="period">/month</span></p>
+            <ul class="features">
+              <li>10 GB Storage</li>
+              <li>1 User</li>
+              <li>Basic Support</li>
+              <li>Community Access</li>
+            </ul>
+            <a href="signup.html" class="cta-button secondary">Get Started</a>
+          </section>
+
+          <section class="pricing-card popular">
+            <h2>Pro</h2>
+            <p class="price">$25<span class="period">/month</span></p>
+            <ul class="features">
+              <li>50 GB Storage</li>
+              <li>5 Users</li>
+              <li>Priority Support</li>
+              <li>Advanced Analytics</li>
+              <li>API Access</li>
+            </ul>
+            <a href="signup.html" class="cta-button">Get Started</a>
+          </section>
+
+          <section class="pricing-card">
+            <h2>Enterprise</h2>
+            <p class="price">Contact Us</p>
+            <ul class="features">
+              <li>Unlimited Storage</li>
+              <li>Unlimited Users</li>
+              <li>24/7 Dedicated Support</li>
+              <li>Single Sign-On (SSO)</li>
+              <li>Custom Integrations</li>
+            </ul>
+            <a href="contact.html" class="cta-button secondary"
+              >Contact Sales</a
+            >
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p>&copy; 2026 WebApp Inc. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>

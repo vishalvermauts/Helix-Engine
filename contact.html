@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact Us | Glassmorphic Website</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .glassmorphic {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      body {
+        background: linear-gradient(to right top, #65dfc9, #6cdbeb);
+      }
+      .form-input {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 0.5rem;
+      }
+      .form-input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .form-input:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.3);
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen font-sans text-white flex flex-col items-center p-4 sm:p-6 md:p-8 bg-cover bg-center"
+  >
+    <div class="w-full max-w-6xl flex flex-col min-h-[90vh]">
+      <!-- Header & Navigation -->
+      <header
+        class="glassmorphic p-4 mb-8 flex justify-between items-center w-full flex-wrap"
+      >
+        <a href="index.html" class="text-2xl font-bold">Helix Digital</a>
+        <!-- Mobile menu button -->
+        <button
+          id="menu-btn"
+          class="md:hidden block text-white focus:outline-none"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16m-7 6h7"
+            ></path>
+          </svg>
+        </button>
+        <nav id="menu" class="hidden md:flex md:items-center md:w-auto w-full">
+          <ul
+            class="flex flex-col md:flex-row md:space-x-2 w-full md:w-auto mt-4 md:mt-0"
+          >
+            <li>
+              <a
+                href="index.html"
+                class="block md:inline-block px-4 py-2 rounded-lg transition-colors duration-300 hover:bg-white hover:bg-opacity-10"
+                >Home</a
+              >
+            </li>
+            <li>
+              <a
+                href="about.html"
+                class="block md:inline-block px-4 py-2 rounded-lg transition-colors duration-300 hover:bg-white hover:bg-opacity-10"
+                >About</a
+              >
+            </li>
+            <li>
+              <a
+                href="services.html"
+                class="block md:inline-block px-4 py-2 rounded-lg transition-colors duration-300 hover:bg-white hover:bg-opacity-10"
+                >Services</a
+              >
+            </li>
+            <li>
+              <a
+                href="portfolio.html"
+                class="block md:inline-block px-4 py-2 rounded-lg transition-colors duration-300 hover:bg-white hover:bg-opacity-10"
+                >Portfolio</a
+              >
+            </li>
+            <li>
+              <a
+                href="contact.html"
+                class="block md:inline-block px-4 py-2 rounded-lg transition-colors duration-300 bg-white bg-opacity-30"
+                >Contact</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </header>
+
+      <!-- Main Content -->
+      <main class="glassmorphic p-8 md:p-12 flex-grow">
+        <section>
+          <h2 class="text-4xl font-bold mb-6">Get In Touch</h2>
+          <p class="mb-8 text-lg">
+            Have a project in mind? We'd love to hear from you. Fill out the
+            form below or send us an email.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <!-- Contact Form -->
+            <form action="#" method="POST" class="space-y-4">
+              <div>
+                <label for="name" class="block mb-1 font-medium"
+                  >Your Name</label
+                >
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  placeholder="John Doe"
+                  class="form-input w-full p-3 transition-colors duration-300"
+                />
+              </div>
+              <div>
+                <label for="email" class="block mb-1 font-medium"
+                  >Your Email</label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="john.doe@example.com"
+                  class="form-input w-full p-3 transition-colors duration-300"
+                />
+              </div>
+              <div>
+                <label for="message" class="block mb-1 font-medium"
+                  >Message</label
+                >
+                <textarea
+                  id="message"
+                  name="message"
+                  rows="5"
+                  placeholder="Tell us about your project..."
+                  class="form-input w-full p-3 transition-colors duration-300"
+                ></textarea>
+              </div>
+              <button
+                type="submit"
+                class="w-full bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300"
+              >
+                Send Message
+              </button>
+            </form>
+
+            <!-- Contact Info -->
+            <div class="space-y-4">
+              <div>
+                <h3 class="text-2xl font-semibold mb-2">Contact Information</h3>
+                <p>
+                  We're available for a chat. Give us a call or drop us an
+                  email.
+                </p>
+              </div>
+              <div class="space-y-3">
+                <p>
+                  <strong>Email:</strong><br />
+                  contact@helixdigital.dev
+                </p>
+                <p>
+                  <strong>Phone:</strong><br />
+                  (555) 123-4567
+                </p>
+                <p>
+                  <strong>Address:</strong><br />
+                  123 Innovation Drive, Tech City, 12345
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="text-center mt-8 text-white text-opacity-70">
+        <p>&copy; 2026 Helix Digital. All Rights Reserved.</p>
+      </footer>
+    </div>
+
+    <script>
+      const menuBtn = document.getElementById("menu-btn");
+      const menu = document.getElementById("menu");
+
+      menuBtn.addEventListener("click", () => {
+        menu.classList.toggle("hidden");
+      });
+    </script>
+  </body>
+</html>

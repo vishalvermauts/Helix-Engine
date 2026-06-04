@@ -11,6 +11,12 @@ echo -e "${BLUE}===============================================${NC}"
 echo -e "${BLUE}       AIRCODE ENGINE SYSTEM DIAGNOSTICS       ${NC}"
 echo -e "${BLUE}===============================================${NC}"
 
+# Load environment variables from the root folder
+if [ -f "/workspaces/AirCode/.env" ]; then
+    export $(grep -v '^#' /workspaces/AirCode/.env | xargs)
+fi
+
+
 # 1. READ CONFIGURATION FROM SERVER.PY
 echo -e "\n${YELLOW}[1/5] Reading server configuration...${NC}"
 if [ ! -f "/workspaces/AirCode/server.py" ]; then
@@ -28,15 +34,17 @@ else
     echo -e "${GREEN}✅ Telegram Bot Token format looks complete.${NC}"
 fi
 
-if [[ "$GEMINI_KEY" == *"YOUR_ACTUAL"* ]]; then
-    echo -e "${RED}❌ Gemini API Key is missing, invalid, or still using OpenRouter format (AQ.)! Ensure it starts with AIzaSy.${NC}"
+if [[ "$GEMINI_API_KEY" == *"YOUR_ACTUAL"* ]] || [ -z "$GEMINI_API_KEY" ]; then
+    echo -e "${RED}❌ Gemini API Key is missing or invalid!${NC}"
+elif [[ "$GEMINI_API_KEY" == ^AIzaSy* ]] || [[ "$GEMINI_API_KEY" == ^AQ\.* ]]; then
+    echo -e "${GREEN}✅ Gemini API Key format looks native (AIzaSy / AQ.Ab).${NC}"
 else
-    echo -e "${GREEN}✅ Gemini API Key format looks native (AIzaSy).${NC}"
+    echo -e "${GREEN}✅ Gemini API Key format accepted.${NC}"
 fi
 
 # 2. TEST TELEGRAM API CONNECTION
 echo -e "\n${YELLOW}[2/5] Testing Telegram API Connectivity...${NC}"
-TG_TEST=$(curl -s "https://api.telegram.org/bot${BOT_TOKEN}/getMe")
+TG_TEST=$(curl -s "https://api.telegram.org/bot${TELEGRAM_TOKEN}/getMe")
 if [[ "$TG_TEST" == *"\"ok\":true"* ]]; then
     echo -e "${GREEN}✅ Telegram Bot Authentication successful! Bot is alive.${NC}"
 else

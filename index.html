@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home | Glassmorphic Website</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .glassmorphic {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      body {
+        background: linear-gradient(to right top, #65dfc9, #6cdbeb);
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen font-sans text-white flex flex-col items-center p-4 sm:p-6 md:p-8 bg-cover bg-center"
+  >
+    <div class="w-full max-w-6xl flex flex-col min-h-[90vh]">
+      <!-- Header & Navigation -->
+      <header
+        class="glassmorphic p-4 mb-8 flex justify-between items-center w-full flex-wrap"
+      >
+        <a href="index.html" class="text-2xl font-bold">Helix Digital</a>
+        <!-- Mobile menu button -->
+        <button
+          id="menu-btn"
+          class="md:hidden block text-white focus:outline-none"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16m-7 6h7"
+            ></path>
+          </svg>
+        </button>
+        <nav id="menu" class="hidden md:flex md:items-center md:w-auto w-full">
+          <ul
+            class="flex flex-col md:flex-row md:space-x-2 w-full md:w-auto mt-4 md:mt-0"
+          >
+            <li>
+              <a
+                href="index.html"
+                class="block md:inline-block px-4 py-2 rounded-lg transition-colors duration-300 bg-white bg-opacity-30"
+                >Home</a
+              >
+            </li>
+            <li>
+              <a
+                href="about.html"
+                class="block md:inline-block px-4 py-2 rounded-lg transition-colors duration-300 hover:bg-white hover:bg-opacity-10"
+                >About</a
+              >
+            </li>
+            <li>
+              <a
+                href="services.html"
+                class="block md:inline-block px-4 py-2 rounded-lg transition-colors duration-300 hover:bg-white hover:bg-opacity-10"
+                >Services</a
+              >
+            </li>
+            <li>
+              <a
+                href="portfolio.html"
+                class="block md:inline-block px-4 py-2 rounded-lg transition-colors duration-300 hover:bg-white hover:bg-opacity-10"
+                >Portfolio</a
+              >
+            </li>
+            <li>
+              <a
+                href="contact.html"
+                class="block md:inline-block px-4 py-2 rounded-lg transition-colors duration-300 hover:bg-white hover:bg-opacity-10"
+                >Contact</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </header>
+
+      <!-- Main Content -->
+      <main class="glassmorphic p-8 md:p-12 flex-grow">
+        <section>
+          <h2 class="text-4xl font-bold mb-4">Welcome to Helix Digital</h2>
+          <p class="text-lg mb-6">
+            We craft beautiful, intuitive, and high-performing web experiences
+            that connect brands with their audiences. Our passion is turning
+            complex problems into simple, elegant solutions. Explore our work
+            and see how we can help you achieve your digital goals.
+          </p>
+          <p class="mb-6">
+            Leveraging cutting-edge technologies and a human-centered design
+            approach, we build products that are not only aesthetically pleasing
+            but also a joy to use. From startups to established enterprises, we
+            partner with clients to elevate their online presence.
+          </p>
+          <a
+            href="portfolio.html"
+            class="inline-block bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300"
+          >
+            View Our Work
+          </a>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="text-center mt-8 text-white text-opacity-70">
+        <p>&copy; 2026 Helix Digital. All Rights Reserved.</p>
+      </footer>
+    </div>
+
+    <script>
+      const menuBtn = document.getElementById("menu-btn");
+      const menu = document.getElementById("menu");
+
+      menuBtn.addEventListener("click", () => {
+        menu.classList.toggle("hidden");
+      });
+    </script>
+  </body>
+</html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web App Landing Page</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header
+      class="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-sm"
+    >
+      <div
+        class="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8"
+      >
+        <div class="flex items-center">
+          <a href="index.html" class="flex-shrink-0">
+            <span class="text-xl font-bold">MySite</span>
+          </a>
+        </div>
+        <nav class="hidden items-center space-x-8 md:flex">
+          <a
+            href="index.html"
+            class="text-sm font-medium text-gray-700 hover:text-gray-900"
+            >Home</a
+          >
+          <a
+            href="about.html"
+            class="text-sm font-medium text-gray-700 hover:text-gray-900"
+            >About</a
+          >
+          <a
+            href="services.html"
+            class="text-sm font-medium text-gray-700 hover:text-gray-900"
+            >Services</a
+          >
+          <a
+            href="contact.html"
+            class="text-sm font-medium text-gray-700 hover:text-gray-900"
+            >Contact</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <header>
+      <nav>
+        <a href="index.html" class="logo">WebApp</a>
+        <ul>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h1>Welcome to Your WebApp</h1>
+        <p>The best solution for your needs. Simple, elegant, and powerful.</p>
+        <a href="signup.html" class="cta-button">Get Started</a>
+      </section>
+
+      <section class="features">
+        <h2>Our Features</h2>
+        <div class="feature-grid">
+          <div class="feature-item">
+            <h3>Feature One</h3>
+            <p>
+              Description of an amazing feature that will capture user interest.
+            </p>
+          </div>
+          <div class="feature-item">
+            <h3>Feature Two</h3>
+            <p>Description of another amazing feature to keep them engaged.</p>
+          </div>
+          <div class="feature-item">
+            <h3>Feature Three</h3>
+            <p>A third amazing feature to seal the deal.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2026 WebApp. All Rights Reserved.</p>
+    </footer>
+  </body>
+</html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Web App</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="logo">MyWebApp</div>
+        <ul>
+          <li><a href="#hero">Home</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#footer">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section id="hero" class="hero">
+        <div class="hero-content">
+          <h1>Welcome to the Future</h1>
+          <p>
+            A revolutionary new platform to streamline your workflow and boost
+            productivity.
+          </p>
+          <a href="#" class="cta-button">Get Started Now</a>
+        </div>
+      </section>
+
+      <section id="features" class="features">
+        <h2>Core Features</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <h3>Feature One</h3>
+            <p>
+              Description of an amazing feature that will solve all your
+              problems.
+            </p>
+          </div>
+          <div class="feature-card">
+            <h3>Feature Two</h3>
+            <p>
+              Description of another incredible feature that you can't live
+              without.
+            </p>
+          </div>
+          <div class="feature-card">
+            <h3>Feature Three</h3>
+            <p>
+              A third feature that is the icing on the cake, making everything
+              perfect.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer id="footer">
+      <p>&copy; 2026 MyWebApp. All rights reserved.</p>
+    </footer>
+  </body>
+</html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Web App</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <nav class="navbar">
+        <a href="index.html" class="nav-logo">WebApp</a>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="features.html" class="nav-link">Features</a>
+          </li>
+          <li class="nav-item">
+            <a href="pricing.html" class="nav-link">Pricing</a>
+          </li>
+          <li class="nav-item">
+            <a href="about.html" class="nav-link">About</a>
+          </li>
+          <li class="nav-item">
+            <a href="contact.html" class="nav-link">Contact</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-content">
+          <h1 class="hero-title">Welcome to Our Web App</h1>
+          <p class="hero-subtitle">The best solution for your needs.</p>
+          <a href="signup.html" class="btn btn-primary">Get Started</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>&copy; 2026 My Web App. All rights reserved.</p>
+    </footer>
+  </body>
+</html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Web App</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="container">
+      <nav>
+        <a href="index.html" class="logo">WebApp</a>
+        <ul>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="login.html" class="button">Login</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero container">
+        <h1>Welcome to Your New Web App</h1>
+        <p>A simple, elegant, and powerful solution for your needs.</p>
+        <a href="signup.html" class="button button-primary"
+          >Get Started for Free</a
+        >
+      </section>
+
+      <section class="features container">
+        <h2>Features</h2>
+        <div class="features-grid">
+          <div class="feature-item">
+            <h3>Feature One</h3>
+            <p>
+              Description of an amazing feature that will solve a user's
+              problem.
+            </p>
+          </div>
+          <div class="feature-item">
+            <h3>Feature Two</h3>
+            <p>
+              Description of another amazing feature that will solve a user's
+              problem.
+            </p>
+          </div>
+          <div class="feature-item">
+            <h3>Feature Three</h3>
+            <p>
+              Description of yet another amazing feature that will solve a
+              user's problem.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta container">
+        <h2>Ready to get started?</h2>
+        <p>Join thousands of users who are already benefiting from our app.</p>
+        <a href="signup.html" class="button button-primary">Sign Up Now</a>
+      </section>
+    </main>
+
+    <footer class="container">
+      <p>&copy; 2026 My Web App. All rights reserved.</p>
+    </footer>
+  </body>
+</html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Web App</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="index.html" class="logo">MyWebApp</a>
+        <ul>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="login.html" class="button">Log In</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h1>Welcome to MyWebApp</h1>
+        <p>The best solution for your problems. Simple, fast, and reliable.</p>
+        <a href="signup.html" class="button button-primary"
+          >Get Started for Free</a
+        >
+      </section>
+
+      <section class="features">
+        <h2>Features</h2>
+        <div class="feature-cards">
+          <div class="card">
+            <h3>Feature One</h3>
+            <p>
+              Description of an amazing feature that will solve user's problems.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Feature Two</h3>
+            <p>
+              Description of another amazing feature that will make users happy.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Feature Three</h3>
+            <p>
+              A third feature that is absolutely essential for modern workflows.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta">
+        <h2>Ready to get started?</h2>
+        <p>Join thousands of users who are already benefiting from MyWebApp.</p>
+        <a href="signup.html" class="button button-primary">Sign Up Now</a>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2026 MyWebApp. All rights reserved.</p>
+    </footer>
+  </body>
+</html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Web App</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <nav class="navbar">
+        <a href="index.html" class="nav-logo">WebApp</a>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="#features" class="nav-link">Features</a>
+          </li>
+          <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
+          <li class="nav-item">
+            <a href="#contact" class="nav-link">Contact</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-container">
+          <h1 class="hero-title">Welcome to Our Awesome Web App</h1>
+          <p class="hero-subtitle">
+            The best solution for your needs. Simple, powerful, and elegant.
+          </p>
+          <a href="#signup" class="btn btn-primary">Get Started</a>
+        </div>
+      </section>
+
+      <section id="features" class="features">
+        <div class="container">
+          <h2 class="section-title">Features</h2>
+          <div class="features-grid">
+            <div class="feature-card">
+              <h3>Feature One</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
+                nec odio. Praesent libero.
+              </p>
+            </div>
+            <div class="feature-card">
+              <h3>Feature Two</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
+                nec odio. Praesent libero.
+              </p>
+            </div>
+            <div class="feature-card">
+              <h3>Feature Three</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
+                nec odio. Praesent libero.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>&copy; 2026 My Web App. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>
