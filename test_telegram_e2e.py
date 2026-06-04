@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AirCode Telegram Bot End-to-End Test
+Helix Engine Telegram Bot End-to-End Test
 Sends a webhook prompt, monitors aider execution, verifies bot response.
 """
 
@@ -41,7 +41,7 @@ async def check_server_health():
         return False
 
 
-async def send_test_prompt(prompt: str = "Create a simple Python script that prints 'AirCode Test'"):
+async def send_test_prompt(prompt: str = "Create a simple Python script that prints 'Helix Engine Test'"):
     """Send a test webhook payload to the server."""
     config = get_config()
     
@@ -191,7 +191,7 @@ async def simulate_local_aider_test():
 async def run_full_test():
     """Execute full end-to-end test."""
     logger.info("=" * 60)
-    logger.info("🚀 AirCode Telegram Bot E2E Test Starting...")
+    logger.info("🚀 Helix Engine Telegram Bot E2E Test Starting...")
     logger.info("=" * 60)
     
     results = {}
@@ -209,7 +209,7 @@ async def run_full_test():
         return results
     
     # 3. Send test prompt
-    test_prompt = "Create a Python script that prints 'AirCode E2E Test Successful'"
+    test_prompt = "Create a Python script that prints 'Helix Engine E2E Test Successful'"
     results["webhook_sent"] = await send_test_prompt(test_prompt)
     if not results["webhook_sent"]:
         logger.error("❌ Failed to send webhook")
@@ -230,7 +230,7 @@ async def main():
     config = get_config()
     
     print("\n" + "=" * 70)
-    print("     AirCode Telegram Bot End-to-End Test")
+    print("     Helix Engine Telegram Bot End-to-End Test")
     print("=" * 70)
     print(f"\n📋 Test Configuration:")
     print(f"   Workspace: {config.workspace_dir}")

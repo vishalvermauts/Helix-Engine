@@ -1,4 +1,4 @@
-# AirCode Dual-Model Triage Router - Implementation Plan
+# Helix Engine Dual-Model Triage Router - Implementation Plan
 
 ## Executive Summary
 
@@ -270,7 +270,7 @@ def get_triage_router() -> TriageRouter:
 
 ```python
 @dataclass
-class AirCodeConfig:
+class Helix EngineConfig:
     # ... existing fields ...
     deepseek_api_key: Optional[str] = None  # Already exists ✅
     deepseek_model: str = "deepseek-chat"  # ADD

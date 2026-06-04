@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AirCode Infrastructure Validation Script
+Helix Engine Infrastructure Validation Script
 Tests config loading, logging, and agent startup.
 """
 
@@ -91,7 +91,7 @@ def test_refactored_server():
 async def main():
     """Run all validation tests."""
     print("=" * 60)
-    print("     AirCode Infrastructure Validation")
+    print("     Helix Engine Infrastructure Validation")
     print("=" * 60)
     
     results = []

@@ -1,5 +1,5 @@
 """
-AirCode Engine Webhook Gateway - Refactored with Lifespan & Structured Logging
+Helix Engine Webhook Gateway - Refactored with Lifespan & Structured Logging
 Handles Telegram webhook events and dispatches Aider code compilation tasks.
 """
 
@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
     """
     # === STARTUP ===
     try:
-        logger.info("🚀 AirCode Engine initializing...", config=config.to_dict())
+        logger.info("🚀 Helix Engine initializing...", config=config.to_dict())
         
         # Validate critical paths exist
         if not Path(config.aider_bin).exists():
@@ -57,7 +57,7 @@ async def lifespan(app: FastAPI):
         if not Path(config.workspace_dir).exists():
             Path(config.workspace_dir).mkdir(parents=True, exist_ok=True)
         
-        logger.info("✅ AirCode Engine startup complete", workspace=config.workspace_dir)
+        logger.info("✅ Helix Engine startup complete", workspace=config.workspace_dir)
     
     except Exception as e:
         logger.critical("❌ Startup failed", error=str(e), exc_info=True)
@@ -66,7 +66,7 @@ async def lifespan(app: FastAPI):
     yield  # App runs here
     
     # === SHUTDOWN ===
-    logger.info("🛑 AirCode Engine shutting down...")
+    logger.info("🛑 Helix Engine shutting down...")
     # Add cleanup here if needed (kill spawned processes, etc.)
 
 
@@ -75,7 +75,7 @@ async def lifespan(app: FastAPI):
 # ============================================================================
 
 app = FastAPI(
-    title="AirCode Engine Webhook Gateway",
+    title="Helix Engine Webhook Gateway",
     description="Telegram webhook interceptor + Aider automation pipeline",
     lifespan=lifespan
 )
@@ -130,7 +130,7 @@ async def root_check():
     """Liveness probe / status endpoint."""
     return {
         "status": "online",
-        "engine": "AirCode",
+        "engine": "Helix Engine",
         "gateway": "FastAPI",
         "timestamp": __import__("datetime").datetime.utcnow().isoformat() + "Z"
     }
@@ -213,7 +213,7 @@ async def telegram_webhook_gateway(request: Request):
     
     # Handle built-in diagnostic commands
     if prompt.lower() in ["/status", "status"]:
-        status_msg = f"✅ AirCode Engine Core is online.\nAider Status: {execution_state['status']}"
+        status_msg = f"✅ Helix Engine Core is online.\nAider Status: {execution_state['status']}"
         if execution_state['last_run']:
             status_msg += f"\nLast run: {execution_state['last_run']}"
         await send_telegram_message(chat_id, status_msg)

@@ -1,4 +1,4 @@
-# AirCode Autonomous Developer Engine 🚀
+# Helix Engine Autonomous Developer Engine 🚀
 
 An automated, self-healing rapid prototyping platform running a headless AI agent loop to build, refactor, and host full-stack web applications dynamically via a cloud pipeline.
 

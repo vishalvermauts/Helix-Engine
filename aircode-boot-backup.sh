@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] === AirCode Custom Quiet Boot ==="
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] === Helix Engine Custom Quiet Boot ==="
 
 # 1. Kill any existing loose processes to clear the board
 sudo kill -9 $(sudo lsof -t -i:8000) 2>/dev/null
@@ -26,7 +26,7 @@ TUNNEL_URL=$(grep -oE "https://[a-zA-Z0-9.-]+\.trycloudflare\.com" cloudflare.lo
 if [ ! -z "$TUNNEL_URL" ]; then
     TOKEN="8982235895:AA..." # Your bot token is preserved here
     CHAT_ID="7569308974"     # Your chat ID
-    MESSAGE="🚀 AirCode Tunnel Sync Active! %0A%0A🌐 $TUNNEL_URL"
+    MESSAGE="🚀 Helix Engine Tunnel Sync Active! %0A%0A🌐 $TUNNEL_URL"
     
     # Send ONE single notification to Telegram
     curl -s -X POST "https://api.telegram.org/bot$TOKEN/sendMessage" -d "chat_id=$CHAT_ID&text=$MESSAGE" > /dev/null

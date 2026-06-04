@@ -1,5 +1,5 @@
 #!/bin/bash
-# AirCode Boot Agent - Secure Startup Pipeline
+# Helix Engine Boot Agent - Secure Startup Pipeline
 # Spawns: FastAPI server, Cloudflare tunnel, system monitor agent
 
 set -e
@@ -19,7 +19,7 @@ mkdir -p "$LOG_DIR"
 
 TIMESTAMP=$(date '+%Y-%m-%d_%H-%M-%S')
 
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] === AirCode Secure Boot Sequence ==="
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] === Helix Engine Secure Boot Sequence ==="
 
 # 1. Kill existing loose processes
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Cleaning up stale processes..."
@@ -59,7 +59,7 @@ if [ ! -z "$TUNNEL_URL" ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] ✅ Tunnel URL: $TUNNEL_URL"
     
     # Send startup notification (using env var, not hardcoded)
-    MESSAGE="🚀 AirCode Tunnel Sync Active!%0A%0A🌐 $TUNNEL_URL"
+    MESSAGE="🚀 Helix Engine Tunnel Sync Active!%0A%0A🌐 $TUNNEL_URL"
     curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
         -d "chat_id=${TELEGRAM_CHAT_ID}&text=${MESSAGE}" > /dev/null || true
     

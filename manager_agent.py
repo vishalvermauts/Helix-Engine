@@ -16,7 +16,7 @@ class OrchestratorAgent:
 
     def run_aider_cycle(self, instructions: str) -> str:
         """Invokes Aider CLI headlessly to alter target repository structures safely."""
-        print(f"[AirCode System] Launching Aider sub-process thread with prompt: {instructions}")
+        print(f"[Helix Engine System] Launching Aider sub-process thread with prompt: {instructions}")
         
         # We target workspace/index.html explicitly using the robust shell wrapper
         command = [
@@ -32,7 +32,7 @@ class OrchestratorAgent:
         result = subprocess.run(command, capture_output=True, text=True, shell=os.name == 'nt')
         print(result.stdout)
         if result.stderr:
-            print("[AirCode System Error]:", result.stderr)
+            print("[Helix Engine System Error]:", result.stderr)
         return "Workspace modifications written successfully."
 
     def capture_screenshot(self) -> str:
@@ -40,7 +40,7 @@ class OrchestratorAgent:
         output_path = WORKSPACE_DIR / "current_output.png"
         target_file = WORKSPACE_DIR / "index.html"
         
-        print(f"[AirCode System] Snapshotting rendered layout of {target_file}")
+        print(f"[Helix Engine System] Snapshotting rendered layout of {target_file}")
         
         # npx playwright screenshot with headless constraints to prevent cloud-container crashes
         # For Windows compatibility, using subprocess instead of os.system
@@ -50,7 +50,7 @@ class OrchestratorAgent:
 
     def analyze_vision_feedback(self, target_img_bytes: bytes, current_img_path: str) -> str:
         """Pipes reference assets alongside local snapshots to Gemini for structural audits."""
-        print("[AirCode System] Constructing multi-modal layout payload...")
+        print("[Helix Engine System] Constructing multi-modal layout payload...")
         
         with open(current_img_path, "rb") as f:
             current_bytes = f.read()
@@ -79,5 +79,5 @@ class OrchestratorAgent:
         try:
             return response.json()["candidates"][0]["content"]["parts"][0]["text"]
         except Exception as e:
-            print(f"[AirCode System] Failed to extract JSON properties from Gemini vision callback: {e}")
+            print(f"[Helix Engine System] Failed to extract JSON properties from Gemini vision callback: {e}")
             return "Verify general container margins and evaluate font weights."

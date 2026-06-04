@@ -1,8 +1,8 @@
-# AirCode Engine - Architectural Optimizations & Refactoring Guide
+# Helix Engine - Architectural Optimizations & Refactoring Guide
 
 ## **Executive Summary**
 
-Your AirCode platform is a sophisticated async-first code generation agent. This document outlines:
+Your Helix Engine platform is a sophisticated async-first code generation agent. This document outlines:
 
 1. **Current state assessment** (strengths & bottlenecks)
 2. **Structural optimizations** (refactored components)
@@ -355,7 +355,7 @@ print(cfg.gemini_model)  # "gemini/gemini-2.5-pro"
 
 **Q: How do I add a new config param?**
 
-1. Add field to `AirCodeConfig` dataclass in `lib/config.py`
+1. Add field to `Helix EngineConfig` dataclass in `lib/config.py`
 2. Add env var read in `from_env()` classmethod
 3. Add to `.env.example` with comment
 
@@ -378,7 +378,7 @@ tail -f logs/server.log | jq 'select(.level=="ERROR")'
 
 ## **Summary**
 
-Your AirCode engine is solid. These optimizations provide:
+Your Helix Engine engine is solid. These optimizations provide:
 
 - **🔒 Security**: No hardcoded secrets, env-based config
 - **📊 Observability**: Structured JSON logs, health endpoints

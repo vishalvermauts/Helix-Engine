@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# AirCode VM Troubleshooter
+# Helix Engine VM Troubleshooter
 echo "================================================="
-echo "        🚀 AirCode Diagnostic Dashboard"
+echo "        🚀 Helix Engine Diagnostic Dashboard"
 echo "================================================="
 echo ""
 
-echo ">>> 1. Active AirCode Processes (server_refactored.py) <<<"
+echo ">>> 1. Active Helix Engine Processes (server_refactored.py) <<<"
 ps aux | grep "[s]erver_refactored.py" | awk '{print "PID: " $2 " | CPU: " $3 "% | MEM: " $4 "% | Started: " $9}'
 echo ""
 
