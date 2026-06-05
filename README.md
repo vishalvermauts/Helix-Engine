@@ -56,8 +56,8 @@ AirCode/
 
 1. **Clone the Engine:**
    ```bash
-   git clone https://github.com/yourusername/AirCode.git
-   cd AirCode
+   git clone https://github.com/vishalvermauts/Helix-Engine.git
+   cd Helix-Engine
    ```
 
 2. **Configure the Environment:**
@@ -83,7 +83,7 @@ The AirCode Helix Engine is designed to run completely headlessly in the backgro
 1. **Clone the Diagnostic Lab Repository:**
    *(The dashboard is maintained in a separate repository)*
    ```bash
-   git clone https://github.com/yourusername/HelixLab.git
+   git clone https://github.com/vishalvermauts/Helix-Brain-Diagnostic-Lab.git
    ```
 
 2. **Establish the Backend Webhook Tunnel:**
