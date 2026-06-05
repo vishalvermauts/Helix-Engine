@@ -1,40 +1,28 @@
 import asyncio
-import re
 import httpx
-from pathlib import Path
-
+from pyngrok import ngrok
 from lib.config import get_config
 from lib.logging import get_logger
 
 logger = get_logger("system_monitor")
-config = get_config()
 
 class SystemMonitor:
     def __init__(self):
         self.config = get_config()
         self.active_tunnel_url = None
-        self.log_path = Path(self.config.WORKSPACE_DIR) / "cloudflare.log"
 
-    async def scan_for_tunnel(self) -> str:
-        """Scan cloudflare.log for the active trycloudflare.com URL."""
-        if not self.log_path.exists():
-            logger.debug(f"Tunnel log not found at {self.log_path}")
-            return None
-
+    async def start_ngrok_tunnel(self) -> str:
+        """Start the pyngrok tunnel dynamically on port 8000."""
         try:
-            with open(self.log_path, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-            
-            # Read from bottom up to get the most recent URL
-            url_pattern = re.compile(r"https://[a-zA-Z0-9-]+\.trycloudflare\.com")
-            for line in reversed(lines):
-                match = url_pattern.search(line)
-                if match:
-                    return match.group(0)
+            logger.info("Starting PyNgrok tunnel...")
+            # Run the blocking ngrok connect in a thread to prevent freezing the async loop
+            tunnel = await asyncio.to_thread(ngrok.connect, self.config.PORT)
+            url = tunnel.public_url
+            logger.info(f"✅ PyNgrok Tunnel Established: {url}")
+            return url
         except Exception as e:
-            logger.error(f"Error reading cloudflare.log: {e}")
-            
-        return None
+            logger.error(f"Failed to start PyNgrok tunnel: {e}")
+            return None
 
     async def update_telegram_webhook(self, url: str):
         """Register the new webhook URL with Telegram."""
@@ -58,16 +46,27 @@ class SystemMonitor:
             logger.error(f"Failed to communicate with Telegram API: {e}")
 
     async def run_daemon(self):
-        """Background loop to self-heal the webhook connection."""
+        """Background daemon that initializes ngrok and registers the webhook."""
         logger.info("System Monitor daemon starting...")
-        while True:
-            current_url = await self.scan_for_tunnel()
-            if current_url and current_url != self.active_tunnel_url:
-                logger.info(f"Detected new tunnel URL: {current_url}")
-                self.active_tunnel_url = current_url
-                await self.update_telegram_webhook(current_url)
+        
+        # 1. Establish the PyNgrok tunnel
+        public_url = await self.start_ngrok_tunnel()
+        
+        if public_url:
+            self.active_tunnel_url = public_url
+            # 2. Register it with Telegram
+            await self.update_telegram_webhook(public_url)
             
-            await asyncio.sleep(10)
+        # 3. Idle to keep the daemon alive
+        while True:
+            await asyncio.sleep(3600)
+
+    async def stop(self):
+        """Clean up the ngrok tunnel on shutdown."""
+        if self.active_tunnel_url:
+            logger.info("Disconnecting PyNgrok tunnel...")
+            await asyncio.to_thread(ngrok.disconnect, self.active_tunnel_url)
+            await asyncio.to_thread(ngrok.kill)
 
 def get_system_monitor() -> SystemMonitor:
     return SystemMonitor()
