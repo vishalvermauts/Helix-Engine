@@ -86,14 +86,14 @@ The AirCode Helix Engine is designed to run completely headlessly in the backgro
    git clone https://github.com/yourusername/HelixLab.git
    ```
 
-2. **Establish the Webhook Tunnel:**
-   The frontend communicates with this backend engine by dispatching requests to the `/webhook` endpoint. Ensure you expose port `8000` securely using a tunnel:
+2. **Establish the Backend Webhook Tunnel:**
+   The frontend (which typically runs on port `3000` or `5173`) needs to communicate with this backend engine by dispatching requests to the `/webhook` endpoint. Ensure you expose the backend's port `8000` securely using a tunnel:
    ```bash
    cloudflared tunnel --url http://localhost:8000
    ```
    
 3. **Configure the Lab Frontend:**
-   Take the resulting Cloudflare URL (e.g., `https://your-tunnel.trycloudflare.com`) and place it in the Lab's configuration to establish bidirectional communication between the UI and the Helix Engine.
+   Take the resulting Cloudflare URL (e.g., `https://your-tunnel.trycloudflare.com`) and place it in the Lab frontend's `.env` or configuration file. This allows your local React/Vue dashboard on port `3000` to seamlessly POST webhook events to the remote Helix Engine.
 
 ---
 
