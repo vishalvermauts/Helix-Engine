@@ -26,10 +26,11 @@ execution_state = {
 }
 
 monitor_task = None
+system_monitor_instance = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global monitor_task
+    global monitor_task, system_monitor_instance
     try:
         logger.info("🚀 Helix Engine initializing...", config=config.to_dict())
         
@@ -40,8 +41,8 @@ async def lifespan(app: FastAPI):
         workspace_dir.mkdir(parents=True, exist_ok=True)
         
         # Start system monitor daemon
-        monitor = get_system_monitor()
-        monitor_task = asyncio.create_task(monitor.run_daemon())
+        system_monitor_instance = get_system_monitor()
+        monitor_task = asyncio.create_task(system_monitor_instance.run_daemon())
         
         logger.info("✅ Helix Engine startup complete", workspace=str(workspace_dir))
     except Exception as e:
@@ -53,6 +54,8 @@ async def lifespan(app: FastAPI):
     logger.info("🛑 Helix Engine shutting down...")
     if monitor_task:
         monitor_task.cancel()
+    if system_monitor_instance:
+        await system_monitor_instance.stop()
 
 app = FastAPI(
     title="Helix Engine Webhook Gateway",

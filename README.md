@@ -54,25 +54,19 @@ AirCode/
 
 ## 🛠️ Setup & Installation
 
+We provide a magical, 1-click interactive setup script that automatically handles Python dependencies, `.env` generation, and auto-tunneling.
+
 1. **Clone the Engine:**
    ```bash
    git clone https://github.com/vishalvermauts/Helix-Engine.git
    cd Helix-Engine
    ```
 
-2. **Configure the Environment:**
-   Copy the example environment file and insert your API keys:
+2. **Run the Interactive Wizard:**
    ```bash
-   cp .env.example .env
+   bash setup.sh
    ```
-   *Note: Ensure your `.env` contains the required keys (e.g., `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`).*
-
-3. **Start the Helix Engine:**
-   Run the FastAPI server using Uvicorn. It will bind to port 8000:
-   ```bash
-   pip install -r requirements.txt
-   uvicorn server:app --host 0.0.0.0 --port 8000 --reload
-   ```
+   *The wizard will ask for your API keys, build your virtual environment, and instantly launch the engine with a secure PyNgrok HTTPS tunnel!*
 
 ---
 
@@ -87,13 +81,11 @@ The AirCode Helix Engine is designed to run completely headlessly in the backgro
    ```
 
 2. **Establish the Backend Webhook Tunnel:**
-   The frontend (which typically runs on port `3000` or `5173`) needs to communicate with this backend engine by dispatching requests to the `/webhook` endpoint. Ensure you expose the backend's port `8000` securely using a tunnel:
-   ```bash
-   cloudflared tunnel --url http://localhost:8000
-   ```
+   The frontend (which typically runs on port `3000` or `5173`) needs to communicate with this backend engine by dispatching requests to the `/webhook` endpoint. 
+   Because you used `bash setup.sh`, the Helix Engine already automatically spawned a secure PyNgrok HTTPS tunnel for you! Look at your terminal output to find your live Ngrok URL.
    
 3. **Configure the Lab Frontend:**
-   Take the resulting Cloudflare URL (e.g., `https://your-tunnel.trycloudflare.com`) and place it in the Lab frontend's `.env` or configuration file. This allows your local React/Vue dashboard on port `3000` to seamlessly POST webhook events to the remote Helix Engine.
+   Take the resulting Ngrok URL (e.g., `https://abc-123.ngrok-free.app`) and place it in the Lab frontend's `.env` or configuration file. This allows your local React/Vue dashboard on port `3000` to seamlessly POST webhook events to the remote Helix Engine.
 
 ---
 
