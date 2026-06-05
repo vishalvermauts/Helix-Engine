@@ -1,23 +1,19 @@
-import os
-import sys
 import asyncio
-from datetime import datetime
+import os
 from contextlib import asynccontextmanager
+from datetime import datetime
 from pathlib import Path
-from typing import Optional
-
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 import httpx
 
-# Add lib to path
-sys.path.insert(0, str(Path(__file__).parent))
-
 from lib.config import get_config
 from lib.logging import get_logger
 from agents.triage_router import get_triage_router
 from agents.system_monitor import get_system_monitor
+from agents.planner_agent import get_planner_agent
+from agents.orchestrator import get_swarm_orchestrator
 
 logger = get_logger("server", level="INFO", format_type="json")
 config = get_config()
@@ -162,80 +158,54 @@ async def telegram_webhook_gateway(request: Request):
     logger.info("📨 Webhook received", user_id=user_id, prompt_len=len(prompt))
     
     selected_model = config.GEMINI_MODEL
+    classification = "COMPLEX"
+    matched_skills = []
+    
     if config.TRIAGE_ENABLED:
         triage_router = get_triage_router()
         triage_result = await triage_router.classify_prompt(prompt)
         selected_model = triage_result.model
+        classification = triage_result.classification
+        matched_skills = triage_result.matched_skills
         logger.info("📊 Triage complete", classification=triage_result.classification, model=selected_model)
     
-    asyncio.create_task(execute_aider_compilation(chat_id, prompt, user_id, selected_model))
+    asyncio.create_task(execute_aider_compilation(chat_id, prompt, user_id, selected_model, classification, matched_skills))
     
     return JSONResponse(status_code=200, content={"status": "queued"})
 
 
-async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, selected_model: str):
+async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, selected_model: str, classification: str = "COMPLEX", matched_skills: list = None):
     async with pipeline_lock:
         try:
-            logger.info("🔨 Aider execution started", user_id=user_id, model=selected_model)
-            await send_telegram_message(chat_id, f"🚀 Executing via Helix Engine...\nModel: {selected_model}")
+            logger.info("🔨 Phase 6 Execution started", user_id=user_id)
+            await send_telegram_message(chat_id, f"🚀 Executing via Helix Engine Phase 6 Grid...")
             
-            env = os.environ.copy()
-            env["GEMINI_API_KEY"] = config.GEMINI_API_KEY
-            env["GEMINI_API_BASE"] = config.GEMINI_API_BASE
+            workspace_dir = str(Path(config.WORKSPACE_DIR) / "workspace")
+            planner = get_planner_agent()
+            orchestrator = get_swarm_orchestrator(workspace_dir)
             
-            workspace_dir = config.WORKSPACE_DIR
-            identity_path = f"{workspace_dir}/core_memory/IDENTITY.md"
-            profile_path = f"{workspace_dir}/core_memory/PROFILE.md"
+            execution_state["status"] = "planning"
+            execution_state["pid"] = os.getpid()
             
-            aider_cmd = [
-                config.AIDER_BIN,
-                "--model", selected_model,
-                "--no-show-model-warnings",
-                "--yes-always",
-                "--no-suggest-shell-commands",
-                "--no-gitignore",
-                "--no-check-update",
-                "--read", identity_path,
-                "--read", profile_path,
-                "--message", prompt
-            ]
+            # Step 1: Planning
+            blueprint = await planner.generate(prompt, task_type=classification, matched_skills=matched_skills)
+            await send_telegram_message(chat_id, f"📝 Planner generated {len(blueprint.tasks)} tasks. Launching Swarm Workers...")
             
-            process = await asyncio.create_subprocess_exec(
-                *aider_cmd,
-                cwd=workspace_dir,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                env=env
-            )
+            execution_state["status"] = "running_swarm"
             
-            execution_state["status"] = "running"
-            execution_state["pid"] = process.pid
+            # Step 2: Swarm Execution
+            success = await orchestrator.execute(blueprint)
             
-            try:
-                stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=config.AIDER_TIMEOUT)
-            except asyncio.TimeoutError:
-                process.kill()
-                logger.error("Aider process timeout")
-                await send_telegram_message(chat_id, f"⏱️ Build timeout after {config.AIDER_TIMEOUT}s.")
-                return
-            
-            output_log = stdout.decode().strip()
-            error_log = stderr.decode().strip()
-            
-            if process.returncode == 0:
-                success_msg = "✨ Build successfully applied!"
-                if output_log:
-                    success_msg += f"\n\n```\n{output_log[:500]}\n```"
+            if success:
+                success_msg = "✨ Swarm Execution completed successfully!"
                 await send_telegram_message(chat_id, success_msg)
             else:
-                fail_msg = "❌ Build failed."
-                if error_log:
-                    fail_msg += f"\n\n```\n{error_log[:500]}\n```"
+                fail_msg = "❌ Swarm Execution finished with errors. Some tasks failed."
                 await send_telegram_message(chat_id, fail_msg)
                 
         except Exception as e:
-            logger.error("Aider execution error", error=str(e), exc_info=True)
-            await send_telegram_message(chat_id, f"⚠️ Build runner failed: {str(e)[:100]}")
+            logger.error("Swarm execution error", error=str(e), exc_info=True)
+            await send_telegram_message(chat_id, f"⚠️ Build pipeline failed: {str(e)[:100]}")
         finally:
             execution_state["status"] = "idle"
             execution_state["pid"] = None

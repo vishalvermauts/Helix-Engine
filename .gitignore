@@ -1,1 +1,7 @@
 .env
+__pycache__/
+logs/
+*.log
+.aider*
+.DS_Store
+release.tar.gz
