@@ -1,45 +1,100 @@
-# Helix Engine Autonomous Developer Engine 🚀
+# 🧬 AirCode Helix Engine
 
-An automated, self-healing rapid prototyping platform running a headless AI agent loop to build, refactor, and host full-stack web applications dynamically via a cloud pipeline.
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Python Version](https://img.shields.io/badge/python-3.10%2B-brightgreen.svg)
+![Architecture](https://img.shields.io/badge/Architecture-Three--Tier%20Defensive-orange)
 
-## 🛠️ Platform Architecture & Upgrades
-
-### 1. Robust Backend Infrastructure (`server.py`)
-
-- **Modern Lifespan Architecture:** Upgraded the core FastAPI application to utilize the modern `asynccontextmanager` lifespan event handler, completely removing legacy deprecated event loops.
-- **Static Asset Delivery Pipeline:** Implemented directory-wide static mounting using `FastAPI.staticfiles` along with explicit root routing fallbacks to serve companion files (`style.css`, `script.js`) cleanly to the browser.
-- **Asynchronous Processing Loop:** Engineered a background task worker system that intercepts incoming webhooks, spawns headless subprocesses, and safely executes isolated file operations.
-
-### 2. Automated Network Tunneling & Security
-
-- **Silent Public Port Lock:** Integrated a background automation routine utilizing the GitHub CLI (`gh`). The server automatically detects its current container environment string (`$CODESPACE_NAME`) upon binding to port 8000 and configures the cloud router visibility to `PUBLIC` without requiring interactive manual selections.
-- **Self-Healing Port Management:** Embedded proactive terminal port-clearing scripts (`fuser -k`) to drop ghost connections seamlessly before startup.
-
-### 3. AI Agent Upgrades (Gemini Migration)
-
-- **Provider Optimization:** Migrated the core Aider code-refactoring loop from DeepSeek to Gemini via LiteLLM.
-- **Extended Reasoning Engine:** Leveraged Gemini's massive context window to process complex multi-file directories, layout styling rules, and state-machine inputs simultaneously without experiencing token cutoffs.
+The **AirCode Helix Engine** is a state-of-the-art, autonomous agent generation and orchestration backend. It leverages a rigorous **Three-Tier Defensive Architecture** to write, execute, and self-heal Python and Node.js agents dynamically on the fly based on webhook payloads.
 
 ---
 
-## 🏆 Completed Milestone Project
+## 🏗️ The Three-Tier Architecture
 
-The following application has been successfully scaffolded, tested, and archived using this engine:
+To achieve production-grade reliability when LLMs write code, the Helix Engine relies on three synchronized layers of defense:
 
-### 🏙️ Milestone 1: Isometric City Building Sandbox
+### Tier 1: Prevention (Dynamic Skill RAG)
+Located in `core_memory/skills/`, the engine maintains a localized "Brain" of strict guidelines. When a user requests a specific type of agent (e.g., a "GitHub Security Scanner"), the **Triage Router** dynamically injects the relevant `.md` memory files into the LLM context. This enforces domain knowledge *before* a single line of code is written (e.g., forcing the use of `gitleaks` over `git grep`, or enforcing `-f json` for Bandit).
 
-- **Simulation Ticker Loop:** Implemented a synchronized Delta-Time logic engine running on a background interval loop to dynamically compute multivariable economic yields (Gold generation, Population capacity, and Power grid requirements).
-- **Affine Coordinate Viewport:** Rendered an 8x8 grass map grid utilizing a rotated spatial projection layout (`rotateX(60deg) rotateZ(-45deg)`) supporting dynamic hover styling and item coordinate placement.
+### Tier 2: Enforcement (Staff Linter Prompting)
+The `Planner Agent` acts as a Staff Engineer, intercepting the user's raw prompt and explicitly injecting architectural constraints. It ensures every generated agent:
+1. Implements strict `try/except` subprocess exception handling.
+2. Only operates within a controlled execution sandbox (e.g., `/workspaces/AirCode/workspace/`).
+3. Outputs clear, unified markdown reports (`report.md`).
+
+### Tier 3: Correction (The Self-Healing Loop)
+If an agent compiles with a syntax error, the `Swarm Orchestrator` catches the traceback and automatically feeds the error *back* into the LLM for a self-correction loop (up to 3 retries). This guarantees that any syntax typos or module import errors are fixed silently without human intervention.
 
 ---
 
-## 🚀 Quick Start & Deployment
+## 🚀 Engine Capabilities
 
-### Run the Server Engine
+- **Autonomous Agent Generation:** Request complex agents (Scrapers, Documenters, Security Scanners) and the engine will scaffold, write, test, and save them directly to the `workspace/custom_agents/` directory.
+- **Webhook Orchestration:** Fully decoupled HTTP design. Expose the `/webhook` endpoint via Ngrok or Cloudflare Tunnels, and integrate it with messaging platforms (like Telegram or Discord) or frontend dashboards.
+- **Dynamic Semantic Routing:** The `Triage Router` automatically classifies inbound requests as `SIMPLE`, `AGENT_GENERATION`, `QA_TESTING`, or `COMPLEX`, assigning the optimal model size and context length for cost-efficiency.
 
-To boot the automated developer engine, clear the active network socket and initialize the script:
+---
 
-```bash
-fuser -k 8000/tcp
-python server.py
+## 📂 Repository Structure
+
+```text
+AirCode/
+├── agents/                     # Core system agents
+│   ├── orchestrator.py         # Tier 3: Executes agents & handles self-healing
+│   ├── planner_agent.py        # Tier 2: Staff Linter blueprint generation
+│   └── triage_router.py        # Tier 1: Semantic router & RAG injection
+├── core_memory/                # The Brain: Long-term storage & RAG skills
+│   └── skills/                 # Domain-specific constraints (Security, Routing)
+├── workspace/                  # Execution Sandbox
+│   └── custom_agents/          # Output directory for successfully generated agents
+├── server.py                   # FastAPI application & Webhook receiver
+└── .env.example                # Template for LLM API keys
 ```
+
+---
+
+## 🛠️ Setup & Installation
+
+1. **Clone the Engine:**
+   ```bash
+   git clone https://github.com/yourusername/AirCode.git
+   cd AirCode
+   ```
+
+2. **Configure the Environment:**
+   Copy the example environment file and insert your API keys:
+   ```bash
+   cp .env.example .env
+   ```
+   *Note: Ensure your `.env` contains the required keys (e.g., `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`).*
+
+3. **Start the Helix Engine:**
+   Run the FastAPI server using Uvicorn. It will bind to port 8000:
+   ```bash
+   pip install -r requirements.txt
+   uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+   ```
+
+---
+
+## 🔬 Connecting to the Helix Brain Diagnostic Lab
+
+The AirCode Helix Engine is designed to run completely headlessly in the background. To interface with it, you will need the **Helix Brain Diagnostic Lab** frontend.
+
+1. **Clone the Diagnostic Lab Repository:**
+   *(The dashboard is maintained in a separate repository)*
+   ```bash
+   git clone https://github.com/yourusername/HelixLab.git
+   ```
+
+2. **Establish the Webhook Tunnel:**
+   The frontend communicates with this backend engine by dispatching requests to the `/webhook` endpoint. Ensure you expose port `8000` securely using a tunnel:
+   ```bash
+   cloudflared tunnel --url http://localhost:8000
+   ```
+   
+3. **Configure the Lab Frontend:**
+   Take the resulting Cloudflare URL (e.g., `https://your-tunnel.trycloudflare.com`) and place it in the Lab's configuration to establish bidirectional communication between the UI and the Helix Engine.
+
+---
+
+*This codebase was meticulously crafted and continuously refined using advanced agentic pair-programming.*

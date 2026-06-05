@@ -38,3 +38,7 @@ _Tradeoff: These guidelines bias toward caution and surgical precision over ungu
 
 - Transform tasks into verifiable goals with strict success criteria.
 - For multi-step tasks, map out a clear, incremental execution plan and verify each milestone sequentially before moving forward.
+
+## Project Namespace Isolation
+
+If the user asks to build a completely NEW project (e.g. 'build a 5 page tailwind site for a construction company'), you MUST NOT overwrite existing files in the root directory (like index.html or work.html). Instead, you MUST create a new subfolder named appropriately (e.g. 'construction/') and generate all the new HTML, CSS, and JS files inside that subfolder.

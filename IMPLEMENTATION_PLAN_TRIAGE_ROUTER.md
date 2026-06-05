@@ -1,4 +1,4 @@
-# Helix Engine Dual-Model Triage Router - Implementation Plan
+# AirCode Dual-Model Triage Router - Implementation Plan
 
 ## Executive Summary
 
@@ -68,7 +68,7 @@ class TriageRouter:
 @app.post("/webhook")
 async def telegram_webhook_gateway(request: Request):
     # ... existing auth & validation ...
-
+    
     # NEW: Triage classification
     triage_result = await triage_router.classify_prompt(prompt)
     logger.info(
@@ -77,7 +77,7 @@ async def telegram_webhook_gateway(request: Request):
         confidence=triage_result.confidence,
         model=triage_result.model
     )
-
+    
     # Dispatch with selected model
     asyncio.create_task(
         execute_aider_compilation(
@@ -157,22 +157,22 @@ class TriageRouter:
         self.logger = get_logger("triage_router")
         self.simple_keywords = ["fix", "bug", "typo", "edit", "replace", "format", "lint"]
         self.complex_keywords = ["refactor", "architect", "redesign", "multi-file", "state", "ui", "layout"]
-
+    
     async def classify_prompt(self, prompt: str) -> TriageResult:
         """Main triage classification method."""
         # 1. Keyword analysis (fast)
         keyword_score = self._analyze_keywords(prompt)
-
+        
         # 2. Token count (fast)
         token_count = len(prompt.split())
-
+        
         # 3. DeepSeek fast classification (0.3s max)
         try:
             deepseek_result = await self._get_deepseek_classification(prompt)
         except asyncio.TimeoutError:
             self.logger.warning("DeepSeek timeout; using keyword analysis only")
             deepseek_result = None
-
+        
         # 4. Decision logic
         if keyword_score > 0.6 and token_count < 100:
             classification = "SIMPLE"
@@ -183,10 +183,10 @@ class TriageRouter:
         else:
             classification = "COMPLEX"
             confidence = 0.7
-
+        
         model = "deepseek/deepseek-coder" if classification == "SIMPLE" else "gemini/gemini-2.5-pro"
         cost = 0.0001 if classification == "SIMPLE" else 0.005
-
+        
         return TriageResult(
             classification=classification,
             confidence=confidence,
@@ -194,18 +194,18 @@ class TriageRouter:
             model=model,
             estimated_cost=cost
         )
-
+    
     def _analyze_keywords(self, prompt: str) -> float:
         """Keyword-based classification (returns 0.0-1.0 score)."""
         prompt_lower = prompt.lower()
         simple_count = sum(1 for kw in self.simple_keywords if kw in prompt_lower)
         complex_count = sum(1 for kw in self.complex_keywords if kw in prompt_lower)
-
+        
         if simple_count + complex_count == 0:
             return 0.5
-
+        
         return simple_count / (simple_count + complex_count)
-
+    
     async def _get_deepseek_classification(self, prompt: str, timeout: float = 0.3) -> str:
         """Call DeepSeek for fast classification."""
         try:
@@ -224,7 +224,7 @@ class TriageRouter:
                 "temperature": 0.3,
                 "max_tokens": 10
             }
-
+            
             async with httpx.AsyncClient() as client:
                 response = await asyncio.wait_for(
                     client.post(
@@ -235,7 +235,7 @@ class TriageRouter:
                     ),
                     timeout=timeout
                 )
-
+            
             if response.status_code == 200:
                 data = response.json()
                 classification = data["choices"][0]["message"]["content"].strip().upper()
@@ -243,7 +243,7 @@ class TriageRouter:
             else:
                 self.logger.warning(f"DeepSeek error: {response.status_code}")
                 return None
-
+        
         except asyncio.TimeoutError:
             raise
         except Exception as e:
@@ -270,7 +270,7 @@ def get_triage_router() -> TriageRouter:
 
 ```python
 @dataclass
-class Helix EngineConfig:
+class AirCodeConfig:
     # ... existing fields ...
     deepseek_api_key: Optional[str] = None  # Already exists ✅
     deepseek_model: str = "deepseek-chat"  # ADD
@@ -305,7 +305,7 @@ from agents.triage_router import get_triage_router
 @app.post("/webhook")
 async def telegram_webhook_gateway(request: Request):
     # ... existing validation code (lines 1-80) ...
-
+    
     # NEW: Triage classification (if enabled)
     selected_model = config.gemini_model  # default
     if config.triage_enabled:
@@ -322,7 +322,7 @@ async def telegram_webhook_gateway(request: Request):
             )
         except Exception as e:
             logger.warning("Triage failed; using default model", error=str(e))
-
+    
     # Dispatch with selected model
     asyncio.create_task(
         execute_aider_compilation(
@@ -332,7 +332,7 @@ async def telegram_webhook_gateway(request: Request):
             model_override=selected_model
         )
     )
-
+    
     return JSONResponse(status_code=200, content={"status": "queued", "task": "Aider processing initiated"})
 ```
 
@@ -352,18 +352,18 @@ async def execute_aider_compilation(
         try:
             # Use override model if provided, else fall back to config default
             model = model_override or config.gemini_model
-
+            
             logger.info("🔨 Aider execution started", user_id=user_id, model=model, prompt_len=len(prompt))
-
+            
             # Build environment
             env = os.environ.copy()
             env["GEMINI_API_KEY"] = config.gemini_api_key
             env["GEMINI_API_BASE"] = config.gemini_api_base
             env["LITELLM_MODE"] = "production"
-
+            
             if config.deepseek_api_key:
                 env["DEEPSEEK_API_KEY"] = config.deepseek_api_key
-
+            
             # Build Aider command with selected model
             aider_cmd = [
                 config.aider_bin,
@@ -375,7 +375,7 @@ async def execute_aider_compilation(
                 "--no-check-update",
                 "--message", prompt
             ]
-
+            
             # ... rest of execution logic (unchanged) ...
 ```
 
@@ -449,11 +449,11 @@ async def test_simple_prompt_routes_to_deepseek():
             "text": "Fix the typo: 'conect' should be 'connect'"
         }
     }
-
+    
     # Send webhook
     response = await client.post("http://127.0.0.1:8000/webhook", json=payload)
     assert response.status_code == 200
-
+    
     # Verify logs show DeepSeek routing
     await asyncio.sleep(3)
     logs = read_structured_logs()
@@ -468,10 +468,10 @@ async def test_complex_prompt_routes_to_gemini():
             "text": "Refactor the entire API architecture from REST to GraphQL with multiple file changes"
         }
     }
-
+    
     response = await client.post("http://127.0.0.1:8000/webhook", json=payload)
     assert response.status_code == 200
-
+    
     await asyncio.sleep(3)
     logs = read_structured_logs()
     assert any(log["message"].contains("gemini/gemini-2.5-pro") for log in logs)
@@ -522,16 +522,16 @@ async def _collect_triage_stats(self):
         # Read structured logs and aggregate by classification
         simple_count = count_logs(level="INFO", contains="SIMPLE")
         complex_count = count_logs(level="INFO", contains="COMPLEX")
-
+        
         savings = (simple_count * 0.0001 - simple_count * 0.005)  # cost diff
-
+        
         report = (
             f"📊 **Triage Router Statistics**\n\n"
             f"Simple Tasks: {simple_count}\n"
             f"Complex Tasks: {complex_count}\n"
             f"Estimated Savings: ${savings:.2f}\n"
         )
-
+        
         await self._send_telegram_message(report)
     except Exception as e:
         self.logger.error("Triage stats collection failed", error=str(e))
@@ -600,13 +600,13 @@ except Exception as e:
 
 ### 6.1 Expected Outcomes
 
-| Metric                        | Before          | After                       | Gain                        |
-| ----------------------------- | --------------- | --------------------------- | --------------------------- |
-| **Avg cost per simple task**  | $0.005 (Gemini) | $0.0001 (DeepSeek)          | 98% savings                 |
-| **Avg cost per complex task** | $0.005 (Gemini) | $0.005 (Gemini)             | No change                   |
-| **Simple task ratio**         | 0%              | ~40-50%                     | 40-50% tasks routed cheaper |
-| **Overall cost reduction**    | Baseline        | -40%                        | ~$200/month on 10k tasks    |
-| **Latency**                   | ~45s (Gemini)   | 8s (DeepSeek) + 2s (triage) | 15% faster for simple       |
+| Metric | Before | After | Gain |
+|--------|--------|-------|------|
+| **Avg cost per simple task** | $0.005 (Gemini) | $0.0001 (DeepSeek) | 98% savings |
+| **Avg cost per complex task** | $0.005 (Gemini) | $0.005 (Gemini) | No change |
+| **Simple task ratio** | 0% | ~40-50% | 40-50% tasks routed cheaper |
+| **Overall cost reduction** | Baseline | -40% | ~$200/month on 10k tasks |
+| **Latency** | ~45s (Gemini) | 8s (DeepSeek) + 2s (triage) | 15% faster for simple |
 
 ### 6.2 Dashboard Metrics
 
@@ -645,13 +645,13 @@ total_cost_saved_usd
 
 ## Risk Mitigation
 
-| Risk                   | Mitigation                                                                        |
-| ---------------------- | --------------------------------------------------------------------------------- |
-| **DeepSeek timeout**   | 300ms timeout; fall back to keyword analysis                                      |
-| **DeepSeek API down**  | Fail open to Gemini; log error; continue                                          |
-| **Misclassification**  | Confidence scoring; manually override via prompt prefix (e.g., `[FORCE_COMPLEX]`) |
-| **Cost spike**         | Monitor daily spend; cap DeepSeek calls to 100/day initially                      |
-| **Latency regression** | Triage adds ~0.5s; acceptable since simple tasks complete 8x faster               |
+| Risk | Mitigation |
+|------|-----------|
+| **DeepSeek timeout** | 300ms timeout; fall back to keyword analysis |
+| **DeepSeek API down** | Fail open to Gemini; log error; continue |
+| **Misclassification** | Confidence scoring; manually override via prompt prefix (e.g., `[FORCE_COMPLEX]`) |
+| **Cost spike** | Monitor daily spend; cap DeepSeek calls to 100/day initially |
+| **Latency regression** | Triage adds ~0.5s; acceptable since simple tasks complete 8x faster |
 
 ---
 
