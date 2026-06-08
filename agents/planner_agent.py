@@ -34,7 +34,8 @@ class PlannerAgent:
             import google.auth
             import google.auth.transport.requests
             
-            credentials, project = google.auth.default()
+            scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+            credentials, project = google.auth.default(scopes=scopes)
             auth_req = google.auth.transport.requests.Request()
             credentials.refresh(auth_req)
             token = credentials.token
@@ -207,7 +208,8 @@ async def generate_e2e_verification_script(blueprint_json: dict, url: str = "htt
         import google.auth
         import google.auth.transport.requests
         
-        credentials, project = google.auth.default()
+        scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+        credentials, project = google.auth.default(scopes=scopes)
         auth_req = google.auth.transport.requests.Request()
         credentials.refresh(auth_req)
         token = credentials.token
