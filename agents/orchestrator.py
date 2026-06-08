@@ -312,53 +312,67 @@ if __name__ == '__main__':
                                 e2e_path = worker_dir / "e2e_smoke_check.py"
                                 e2e_path.write_text(e2e_script)
                                 
-                                if has_server_py:
-                                    logger.info(f"Detected backend script {has_server_py.name}, launching daemon on port 8001")
-                                    # Clean up any existing persistent backends on Port 8001
-                                    kill_proc = await asyncio.create_subprocess_exec(
-                                        "lsof", "-t", "-i:8001",
-                                        stdout=asyncio.subprocess.PIPE
-                                    )
-                                    kill_out, _ = await kill_proc.communicate()
-                                    if kill_out:
-                                        pids = kill_out.decode().strip().split()
-                                        for pid in pids:
-                                            await asyncio.create_subprocess_exec("kill", "-9", pid)
-                                            
-                                    # Launch persistent backend daemon on Port 8001
-                                    # Force Uvicorn or Flask to run on 8001 by overriding env vars
-                                    env_backend = os.environ.copy()
-                                    env_backend["PORT"] = "8001"
+                                backend_proc = None
+                                try:
+                                    if has_server_py:
+                                        logger.info(f"Detected backend script {has_server_py.name}, launching daemon on port 8001")
+                                        # Clean up any existing persistent backends on Port 8001
+                                        kill_proc = await asyncio.create_subprocess_exec(
+                                            "lsof", "-t", "-i:8001",
+                                            stdout=asyncio.subprocess.PIPE
+                                        )
+                                        kill_out, _ = await kill_proc.communicate()
+                                        if kill_out:
+                                            pids = kill_out.decode().strip().split()
+                                            for pid in pids:
+                                                await asyncio.create_subprocess_exec("kill", "-9", pid)
+                                                
+                                        # Launch persistent backend daemon on Port 8001
+                                        # Force Uvicorn or Flask to run on 8001 by overriding env vars
+                                        env_backend = os.environ.copy()
+                                        env_backend["PORT"] = "8001"
+                                        
+                                        # We use subprocess.Popen directly to decouple it completely from the Orchestrator loop
+                                        import subprocess
+                                        with open(worker_dir / "backend_persistent.log", "w") as log_file:
+                                            backend_proc = subprocess.Popen(
+                                                ["python3", str(has_server_py)],
+                                                cwd=str(worker_dir),
+                                                env=env_backend,
+                                                stdout=log_file,
+                                                stderr=subprocess.STDOUT,
+                                                start_new_session=True # Detach from parent
+                                            )
+                                        
+                                        # Give server a second to boot
+                                        await asyncio.sleep(2)
                                     
-                                    # We use subprocess.Popen directly to decouple it completely from the Orchestrator loop
-                                    import subprocess
-                                    log_file = open(worker_dir / "backend_persistent.log", "w")
-                                    subprocess.Popen(
-                                        ["python3", str(has_server_py)],
+                                    # Run Playwright E2E (URL is now baked into the generated script)
+                                    e2e_proc = await asyncio.create_subprocess_exec(
+                                        sys.executable, str(e2e_path),
                                         cwd=str(worker_dir),
-                                        env=env_backend,
-                                        stdout=log_file,
-                                        stderr=subprocess.STDOUT,
-                                        start_new_session=True # Detach from parent
+                                        stdout=asyncio.subprocess.PIPE,
+                                        stderr=asyncio.subprocess.PIPE
                                     )
+                                    e2e_out, e2e_err = await e2e_proc.communicate()
                                     
-                                    # Give server a second to boot
-                                    await asyncio.sleep(2)
-                                
-                                # Run Playwright E2E (URL is now baked into the generated script)
-                                e2e_proc = await asyncio.create_subprocess_exec(
-                                    sys.executable, str(e2e_path),
-                                    cwd=str(worker_dir),
-                                    stdout=asyncio.subprocess.PIPE,
-                                    stderr=asyncio.subprocess.PIPE
-                                )
-                                e2e_out, e2e_err = await e2e_proc.communicate()
-                                
-                                if e2e_proc.returncode != 0:
-                                    validation_failed = True
-                                    feedback = "Runtime Verification Failed!\n"
-                                    feedback += f"E2E Test Output:\n{e2e_out.decode('utf-8')}\n{e2e_err.decode('utf-8')}\n"
-                                    logger.warning(f"Worker {task.task_id} failed runtime validation. Retrying...\nFeedback: {feedback}")
+                                    if e2e_proc.returncode != 0:
+                                        validation_failed = True
+                                        feedback = "Runtime Verification Failed!\n"
+                                        feedback += f"E2E Test Output:\n{e2e_out.decode('utf-8')}\n{e2e_err.decode('utf-8')}\n"
+                                        logger.warning(f"Worker {task.task_id} failed runtime validation. Retrying...\nFeedback: {feedback}")
+                                finally:
+                                    if backend_proc:
+                                        logger.info(f"Terminating persistent backend daemon on port 8001 (PID {backend_proc.pid})")
+                                        try:
+                                            backend_proc.terminate()
+                                            # Use a simple wait loop or wait() to avoid blocks
+                                            backend_proc.wait(timeout=5)
+                                        except subprocess.TimeoutExpired:
+                                            logger.warning(f"Backend daemon (PID {backend_proc.pid}) did not terminate, killing...")
+                                            backend_proc.kill()
+                                        except Exception as e:
+                                            logger.error(f"Error terminating backend daemon: {e}")
                                         
                         if validation_failed:
                             if current_attempt >= max_retries:

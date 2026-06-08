@@ -65,7 +65,7 @@
                 </div>
                 <div class="w-px h-6 bg-cyan-900/50"></div>
                 <div class="flex items-center gap-2">
-                    <span class="text-teal-400 font-extrabold tracking-wider text-xs">SUB-AGENTS:</span>
+                    <span class="text-teal-400 font-extrabold tracking-wider text-xs">UTILITY RUNS:</span>
                     <span id="stat-sub-agents" class="text-teal-300 font-bold text-base">0</span>
                 </div>
             </div>
@@ -390,9 +390,12 @@
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 });
                 const statsData = await statsRes.json();
-                if (statsData) {
-                    valHighTier.innerText = statsData.counts ? (statsData.counts.COMPLEX || 0) : 0;
-                    valSubAgents.innerText = statsData.counts ? (statsData.counts.SIMPLE || 0) : 0;
+                if (statsData && statsData.counts) {
+                    const complexVal = (statsData.counts.COMPLEX || 0) + 
+                                       (statsData.counts.AGENT_GENERATION || 0) + 
+                                       (statsData.counts.QA_TESTING || 0);
+                    valHighTier.innerText = complexVal;
+                    valSubAgents.innerText = statsData.counts.SIMPLE || 0;
                 }
             } catch (err) {
                 console.error("Error fetching logs and stats:", err);
