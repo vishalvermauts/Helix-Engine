@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from fastapi import FastAPI, Request, HTTPException, WebSocket, WebSocketDisconnect
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 import httpx
 import websockets
@@ -24,7 +24,14 @@ pipeline_lock = asyncio.Lock()
 execution_state = {
     "status": "idle",
     "last_run": None,
-    "pid": None
+    "pid": None,
+    "current_prompt": None,
+    "start_time": None,
+    "blueprint": None,
+    "completed_tasks": [],
+    "failed_tasks": [],
+    "running_task": None,
+    "history": []
 }
 
 monitor_task = None
@@ -106,11 +113,11 @@ async def send_telegram_message(chat_id: int, text: str, max_retries: int = 2):
 
 @app.get("/")
 async def root_check():
-    return {
-        "status": "online",
-        "engine": "Helix",
-        "timestamp": datetime.utcnow().isoformat() + "Z"
-    }
+    dashboard_path = Path(__file__).parent / "dashboard.html"
+    if dashboard_path.exists():
+        with open(dashboard_path, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse(content="<h1>Helix Engine Node: Online</h1>")
 
 @app.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy_api(request: Request, path: str):
@@ -347,6 +354,16 @@ async def telegram_webhook_gateway(request: Request):
 
 async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, selected_model: str, classification: str = "COMPLEX", matched_skills: list = None):
     async with pipeline_lock:
+        start_time = datetime.utcnow()
+        execution_state["status"] = "planning"
+        execution_state["pid"] = os.getpid()
+        execution_state["current_prompt"] = prompt
+        execution_state["start_time"] = start_time.isoformat() + "Z"
+        execution_state["blueprint"] = None
+        execution_state["completed_tasks"] = []
+        execution_state["failed_tasks"] = []
+        execution_state["running_task"] = None
+        
         try:
             logger.info("🔨 Phase 6 Execution started", user_id=user_id)
             await send_telegram_message(chat_id, f"🚀 Executing via Helix Engine Phase 6 Grid...")
@@ -355,11 +372,30 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
             planner = get_planner_agent()
             orchestrator = get_swarm_orchestrator(workspace_dir)
             
-            execution_state["status"] = "planning"
-            execution_state["pid"] = os.getpid()
+            # Setup dynamic callbacks on orchestrator to feed task progress to dashboard
+            def on_task_start(task_id: str):
+                execution_state["running_task"] = task_id
+                
+            def on_task_complete(task_id: str):
+                if task_id not in execution_state["completed_tasks"]:
+                    execution_state["completed_tasks"].append(task_id)
+                if execution_state["running_task"] == task_id:
+                    execution_state["running_task"] = None
+                    
+            def on_task_fail(task_id: str):
+                if task_id not in execution_state["failed_tasks"]:
+                    execution_state["failed_tasks"].append(task_id)
+                if execution_state["running_task"] == task_id:
+                    execution_state["running_task"] = None
+
+            orchestrator.on_task_start = on_task_start
+            orchestrator.on_task_complete = on_task_complete
+            orchestrator.on_task_fail = on_task_fail
             
             # Step 1: Planning
             blueprint = await planner.generate(prompt, task_type=classification, matched_skills=matched_skills)
+            execution_state["blueprint"] = blueprint.dict() if hasattr(blueprint, 'dict') else blueprint.model_dump()
+            
             await send_telegram_message(chat_id, f"📝 Planner generated {len(blueprint.tasks)} tasks. Launching Swarm Workers...")
             
             execution_state["status"] = "running_swarm"
@@ -369,11 +405,25 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
             logger.info("🧠 Swarm dispatching", model=selected_model, classification=classification)
             success = await orchestrator.execute(blueprint, selected_model=selected_model)
             
+            # Add to history
+            duration_sec = (datetime.utcnow() - start_time).total_seconds()
+            output_url = None
+            if success and system_monitor_instance and system_monitor_instance.active_tunnel_url:
+                output_url = f"{system_monitor_instance.active_tunnel_url}/workspace/index.html"
+                
+            run_history_item = {
+                "prompt": prompt,
+                "start_time": execution_state["start_time"],
+                "duration_seconds": round(duration_sec, 1),
+                "status": "success" if success else "failed",
+                "output_url": output_url
+            }
+            execution_state["history"].append(run_history_item)
+            
             if success:
                 success_msg = "✨ Swarm Execution completed successfully!"
-                if system_monitor_instance and system_monitor_instance.active_tunnel_url:
-                    url = f"{system_monitor_instance.active_tunnel_url}/workspace/index.html"
-                    success_msg += f"\n\n🌐 View your built UI here:\n{url}"
+                if output_url:
+                    success_msg += f"\n\n🌐 View your built UI here:\n{output_url}"
                 await send_telegram_message(chat_id, success_msg)
             else:
                 fail_msg = "❌ Swarm Execution finished with errors. Some tasks failed."
@@ -382,10 +432,23 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
         except Exception as e:
             logger.error("Swarm execution error", error=str(e), exc_info=True)
             await send_telegram_message(chat_id, f"⚠️ Build pipeline failed: {str(e)[:100]}")
+            # Add failure to history
+            duration_sec = (datetime.utcnow() - start_time).total_seconds()
+            execution_state["history"].append({
+                "prompt": prompt,
+                "start_time": execution_state["start_time"],
+                "duration_seconds": round(duration_sec, 1),
+                "status": "failed",
+                "output_url": None
+            })
         finally:
             execution_state["status"] = "idle"
             execution_state["pid"] = None
             execution_state["last_run"] = datetime.utcnow().isoformat() + "Z"
+            execution_state["current_prompt"] = None
+            execution_state["start_time"] = None
+            execution_state["blueprint"] = None
+            execution_state["running_task"] = None
 
 if __name__ == "__main__":
     import uvicorn

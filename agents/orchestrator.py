@@ -110,10 +110,14 @@ class SwarmOrchestrator:
                         logger.error(f"Task {task.task_id} aborted because dependency {dep} failed.")
                         task_futures[task.task_id].set_result(False)
                         self._tasks_failed.add(task.task_id)
+                        if hasattr(self, 'on_task_fail') and self.on_task_fail:
+                            self.on_task_fail(task.task_id)
                         return
 
             async with semaphore:
                 logger.info(f"⚙️ Starting Worker Task: {task.task_id} - {task.description}")
+                if hasattr(self, 'on_task_start') and self.on_task_start:
+                    self.on_task_start(task.task_id)
                 
                 # Setup isolated workspace (cloning current state)
                 worker_dir = self._worker_base / task.task_id
@@ -166,6 +170,8 @@ class SwarmOrchestrator:
                                 
                         self._tasks_completed.add(task.task_id)
                         task_futures[task.task_id].set_result(True)
+                        if hasattr(self, 'on_task_complete') and self.on_task_complete:
+                            self.on_task_complete(task.task_id)
                         return
 
                     # Pre-write generated files first to bootstrap
@@ -359,6 +365,8 @@ if __name__ == '__main__':
                             
                     self._tasks_completed.add(task.task_id)
                     task_futures[task.task_id].set_result(True)
+                    if hasattr(self, 'on_task_complete') and self.on_task_complete:
+                        self.on_task_complete(task.task_id)
 
                 except Exception as e:
                     logger.error(f"❌ Worker {task.task_id} failed: {e}")
@@ -377,6 +385,8 @@ if __name__ == '__main__':
                     
                     self._tasks_failed.add(task.task_id)
                     task_futures[task.task_id].set_result(False)
+                    if hasattr(self, 'on_task_fail') and self.on_task_fail:
+                        self.on_task_fail(task.task_id)
                     
                 finally:
                     # Always clean up the RAM disk to prevent memory leaks on the VM

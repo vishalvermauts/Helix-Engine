@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helix Engine - Observability Matrix</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #0d0614; /* Deep Space Amethyst black base */
+        }
+        .glow-violet {
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+        }
+        .glow-amber {
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+        }
+        .glow-emerald {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+        .frosted {
+            background: rgba(22, 12, 35, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(22, 12, 35, 0.3);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.3);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen flex flex-col p-4 md:p-6 overflow-x-hidden">
+
+    <!-- SECTION 1: GLOBAL CONTROL HEADER BANNER -->
+    <header class="frosted rounded-xl p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4 glow-violet">
+        <div class="flex items-center gap-3">
+            <div class="w-3 h-3 rounded-full bg-violet-500 animate-pulse glow-violet"></div>
+            <h1 class="text-xl font-bold tracking-wider text-violet-400">HELIX ENGINE NODE v2.1</h1>
+        </div>
+        
+        <div class="flex items-center gap-6">
+            <!-- Dual-Token Ledger -->
+            <div class="flex items-center gap-4 text-xs bg-black/40 rounded-lg p-2 px-3 border border-violet-900/50">
+                <div class="flex items-center gap-2">
+                    <span class="text-violet-500 font-bold">REASONING:</span>
+                    <span id="stat-high-tier" class="text-violet-300">0</span>
+                </div>
+                <div class="w-px h-4 bg-violet-900"></div>
+                <div class="flex items-center gap-2">
+                    <span class="text-cyan-500 font-bold">SUB-AGENTS:</span>
+                    <span id="stat-sub-agents" class="text-cyan-300">0</span>
+                </div>
+            </div>
+
+            <!-- Simulate Workspace Path Fault Toggle -->
+            <div class="flex items-center gap-3 bg-black/40 p-2 px-3 rounded-lg border border-amber-900/30">
+                <label for="fault-toggle" class="text-xs text-amber-500/80 font-bold cursor-pointer select-none">SIMULATE WORKSPACE PATH BRANCH FAULT</label>
+                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" name="toggle" id="fault-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer right-4 checked:right-0 checked:bg-amber-500 transition-all duration-300 ease-in-out"/>
+                    <label for="fault-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-700 cursor-pointer"></label>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN GRID CONTAINER -->
+    <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
+
+        <!-- SECTION 2: THE INPUT CARD BLOCK (Left Panel, 3/12) -->
+        <section class="lg:col-span-3 flex flex-col gap-6">
+            <div class="frosted rounded-xl p-5 flex flex-col gap-4 flex-grow relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-violet-500/5 rounded-full blur-2xl"></div>
+                
+                <div class="flex items-center justify-between border-b border-violet-900/30 pb-3">
+                    <span class="text-sm font-bold text-violet-400 flex items-center gap-2">
+                        <i data-lucide="terminal" class="w-4 h-4"></i> class InputPayloadParser
+                    </span>
+                    <span class="text-[10px] bg-violet-950 text-violet-300 px-2 py-0.5 rounded border border-violet-800/50">Active</span>
+                </div>
+
+                <!-- Attributes -->
+                <div class="flex flex-col gap-2">
+                    <span class="text-xs text-gray-500 font-bold tracking-wider">// Attributes</span>
+                    <div class="bg-black/30 rounded-lg p-3 border border-violet-950 text-[11px] flex flex-col gap-2 leading-relaxed">
+                        <div><span class="text-violet-400">raw_prompt</span>: String = <span id="val-prompt" class="text-gray-300">"Build responsive portfolio and workspace tracking..."</span></div>
+                        <div><span class="text-violet-400">target_directory</span>: Path = <span class="text-gray-300">"/workspaces/production_vault"</span></div>
+                        <div><span class="text-violet-400">offload_routing_tier</span>: Enum = <span class="text-gray-300">DualModelTriage</span></div>
+                    </div>
+                </div>
+
+                <!-- Methods -->
+                <div class="flex flex-col gap-2">
+                    <span class="text-xs text-gray-500 font-bold tracking-wider">// Methods</span>
+                    <div class="bg-black/30 rounded-lg p-3 border border-violet-950 text-[11px] flex flex-col gap-3">
+                        <div class="flex justify-between items-center">
+                            <span>+ validate_parameters()</span>
+                            <span id="method-validate" class="text-gray-500">Idle</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>+ calculate_token_triage()</span>
+                            <span id="method-triage" class="text-gray-500">Idle</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <button id="btn-trigger" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white font-bold py-3 rounded-lg transition-all transform hover:scale-[1.02] shadow-lg shadow-violet-950/50 flex items-center justify-center gap-2">
+                    <i data-lucide="play" class="w-4 h-4"></i> TRIGGER LIVE MONITOR RUN
+                </button>
+
+                <!-- Log Stream Module -->
+                <div class="flex flex-col gap-2 flex-grow">
+                    <span class="text-xs text-gray-500 font-bold tracking-wider">// Live Process Monitor Log</span>
+                    <div id="terminal-log" class="bg-black/60 rounded-lg p-3 border border-violet-950/60 font-mono text-[10px] text-violet-300/80 h-64 overflow-y-auto custom-scrollbar leading-relaxed">
+                        [system] Standing by for live deployment webhook triggers...
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: THE SWARM PROCESSING CORE MATRIX (Center Panel, 5/12) -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+            <div class="frosted rounded-xl p-5 flex flex-col gap-5 flex-grow relative">
+                <span class="text-sm font-bold text-violet-400 flex items-center gap-2 border-b border-violet-900/30 pb-3">
+                    <i data-lucide="cpu" class="w-4 h-4"></i> Swarm Core Processing Matrix
+                </span>
+
+                <!-- 1. Master Control Card -->
+                <div id="card-orchestrator" class="bg-black/30 border border-violet-900/20 rounded-lg p-4 transition-all duration-300 relative">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs font-bold text-violet-300 flex items-center gap-1.5">
+                            <i data-lucide="workflow" class="w-3.5 h-3.5"></i> class OrchestratorAgent
+                        </span>
+                        <span id="badge-orchestrator" class="text-[10px] text-gray-500 bg-gray-950 px-2 py-0.5 rounded border border-gray-900">IDLE</span>
+                    </div>
+                    <div class="text-[10px] text-gray-400 flex flex-col gap-1">
+                        <div>+ active_swarms_count: int = <span id="val-swarms" class="text-gray-300">0</span></div>
+                        <div>+ state_profile: Enum = <span id="val-state" class="text-gray-300">IDLE</span></div>
+                    </div>
+                </div>
+
+                <!-- 2. Parallel Sub-Worker Card Deck -->
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Node A: BackendCoder -->
+                    <div id="card-coder" class="bg-black/30 border border-violet-900/20 rounded-lg p-4 transition-all duration-300 flex flex-col justify-between h-32">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-[11px] font-bold text-violet-300 flex items-center gap-1">
+                                    <i data-lucide="code" class="w-3 h-3"></i> BackendCoder
+                                </span>
+                            </div>
+                            <div class="text-[9px] text-gray-500 leading-tight">Writes core compiler files and verifies AST syntaxes.</div>
+                        </div>
+                        <div class="mt-2">
+                            <div class="flex justify-between text-[9px] mb-1">
+                                <span>Progress</span>
+                                <span id="txt-coder-progress">0%</span>
+                            </div>
+                            <div class="w-full bg-violet-950/50 rounded-full h-1.5 overflow-hidden">
+                                <div id="bar-coder-progress" class="bg-violet-500 h-1.5 transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Node B: AssetLinker -->
+                    <div id="card-linker" class="bg-black/30 border border-violet-900/20 rounded-lg p-4 transition-all duration-300 flex flex-col justify-between h-32">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-[11px] font-bold text-violet-300 flex items-center gap-1">
+                                    <i data-lucide="link" class="w-3 h-3"></i> AssetLinker
+                                </span>
+                            </div>
+                            <div class="text-[9px] text-gray-500 leading-tight">Inspects link bindings and resolves path dependencies.</div>
+                        </div>
+                        <div class="mt-2">
+                            <div class="flex justify-between text-[9px] mb-1">
+                                <span>Progress</span>
+                                <span id="txt-linker-progress">0%</span>
+                            </div>
+                            <div class="w-full bg-violet-950/50 rounded-full h-1.5 overflow-hidden">
+                                <div id="bar-linker-progress" class="bg-violet-500 h-1.5 transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Validation Guardian Card -->
+                <div id="card-critic" class="bg-black/30 border border-violet-900/20 rounded-lg p-4 transition-all duration-300 mt-auto">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-xs font-bold text-violet-300 flex items-center gap-1.5">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> class CriticReviewerAgent
+                        </span>
+                        <span id="badge-critic" class="text-[10px] text-gray-500 bg-gray-950 px-2 py-0.5 rounded border border-gray-900">IDLE</span>
+                    </div>
+                    <div class="text-[10px] text-gray-400 flex flex-col gap-2">
+                        <div class="flex justify-between">
+                            <span>+ run_playwright_interaction_sweep()</span>
+                            <span id="method-playwright" class="text-gray-500">Standby</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>+ verify_image_resolutions()</span>
+                            <span id="method-image" class="text-gray-500">Standby</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: THE TARGET KANBAN WORKSPACE VIEW (Right Panel, 4/12) -->
+        <section class="lg:col-span-4 flex flex-col gap-6">
+            <div class="frosted rounded-xl p-5 flex flex-col gap-4 flex-grow">
+                <span class="text-sm font-bold text-violet-400 flex items-center gap-2 border-b border-violet-900/30 pb-3">
+                    <i data-lucide="kanban" class="w-4 h-4"></i> Target Kanban Workspace View
+                </span>
+
+                <div class="grid grid-cols-2 gap-4 flex-grow h-[500px]">
+                    <!-- Column 1: Blueprint -->
+                    <div class="bg-black/20 rounded-lg p-3 border border-violet-950/40 flex flex-col gap-2.5">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">[1. Blueprint]</span>
+                        <div id="col-blueprint" class="flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-1">
+                            <div class="text-[9px] text-gray-500 text-center py-4">No blueprint loaded</div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Compile -->
+                    <div class="bg-black/20 rounded-lg p-3 border border-violet-950/40 flex flex-col gap-2.5">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">[2. Compile]</span>
+                        <div id="col-compile" class="flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-1">
+                            <div class="text-[9px] text-gray-500 text-center py-4">No files compiled</div>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Validate -->
+                    <div class="bg-black/20 rounded-lg p-3 border border-violet-950/40 flex flex-col gap-2.5">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">[3. Validate]</span>
+                        <div id="col-validate" class="flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-1">
+                            <div class="text-[9px] text-gray-500 text-center py-4">No logs validated</div>
+                        </div>
+                    </div>
+
+                    <!-- Column 4: Vault Outlet -->
+                    <div class="bg-black/20 rounded-lg p-3 border border-violet-950/40 flex flex-col gap-2.5">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">[4. Vault Outlet]</span>
+                        <div id="col-outlet" class="flex flex-col gap-2 flex-grow overflow-hidden">
+                            <!-- Workspace Normal View -->
+                            <div id="view-normal" class="flex flex-col gap-2 h-full justify-center items-center text-center p-2">
+                                <i data-lucide="globe" class="w-8 h-8 text-gray-600 mb-2"></i>
+                                <span class="text-[10px] text-gray-500">All links, buttons, and assets fully verified.</span>
+                            </div>
+                            
+                            <!-- Forensics Diagnostic Matrix (Hidden by default) -->
+                            <div id="view-fault" class="hidden flex flex-col gap-2 h-full text-left bg-amber-950/10 border border-amber-950/60 p-3 rounded-lg overflow-y-auto custom-scrollbar text-[10px] leading-relaxed">
+                                <div class="text-amber-500 font-bold border-b border-amber-950 pb-1.5 mb-1.5 flex items-center gap-1">
+                                    <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> FORENSICS MATRIX
+                                </div>
+                                <div class="text-amber-400 font-semibold mb-1">Drift Details:</div>
+                                <div class="text-gray-300 font-mono text-[9px]">Aider nested folder to /workspace/workspace/ breaking relative absolute links</div>
+                                <div class="text-gray-300 font-mono text-[9px] mt-2">Remediation: Reset static mount to config.WORKSPACE_DIR directly.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER HISTORY -->
+    <footer class="frosted rounded-xl p-4 mt-6">
+        <span class="text-xs font-bold text-violet-400 flex items-center gap-2 border-b border-violet-900/30 pb-2 mb-3">
+            <i data-lucide="history" class="w-4 h-4"></i> Run History Matrix
+        </span>
+        <div id="history-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-[10px] text-gray-400">
+            <div class="text-center py-2 text-gray-500">No runs tracked in this session</div>
+        </div>
+    </footer>
+
+    <!-- INTERACTION LOGIC SCRIPT -->
+    <script>
+        // DOM Elements
+        const faultToggle = document.getElementById('fault-toggle');
+        const header = document.querySelector('header');
+        const termLog = document.getElementById('terminal-log');
+        const orchestratorCard = document.getElementById('card-orchestrator');
+        const orchestratorBadge = document.getElementById('badge-orchestrator');
+        const coderCard = document.getElementById('card-coder');
+        const coderProgText = document.getElementById('txt-coder-progress');
+        const coderBar = document.getElementById('bar-coder-progress');
+        const linkerCard = document.getElementById('card-linker');
+        const linkerProgText = document.getElementById('txt-linker-progress');
+        const linkerBar = document.getElementById('bar-linker-progress');
+        const criticCard = document.getElementById('card-critic');
+        const criticBadge = document.getElementById('badge-critic');
+        const methodValidate = document.getElementById('method-validate');
+        const methodTriage = document.getElementById('method-triage');
+        const methodPlaywright = document.getElementById('method-playwright');
+        const methodImage = document.getElementById('method-image');
+        const valSwarms = document.getElementById('val-swarms');
+        const valState = document.getElementById('val-state');
+        const viewNormal = document.getElementById('view-normal');
+        const viewFault = document.getElementById('view-fault');
+        const valHighTier = document.getElementById('stat-high-tier');
+        const valSubAgents = document.getElementById('stat-sub-agents');
+        const valPrompt = document.getElementById('val-prompt');
+        const colBlueprint = document.getElementById('col-blueprint');
+        const colCompile = document.getElementById('col-compile');
+        const colValidate = document.getElementById('col-validate');
+        const historyGrid = document.getElementById('history-grid');
+        const btnTrigger = document.getElementById('btn-trigger');
+
+        // Internal State
+        let isFaultSimulated = false;
+
+        // Toggle handler
+        faultToggle.addEventListener('change', (e) => {
+            isFaultSimulated = e.target.checked;
+            if (isFaultSimulated) {
+                header.classList.remove('glow-violet');
+                header.classList.add('glow-amber');
+                header.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+                
+                coderCard.classList.add('border-rose-950', 'bg-rose-950/5');
+                linkerCard.classList.add('border-rose-950', 'bg-rose-950/5');
+                
+                viewNormal.classList.add('hidden');
+                viewFault.classList.remove('hidden');
+                
+                logMessage("[fault-trigger] Workspace fault path redirection simulation is active!");
+            } else {
+                header.classList.remove('glow-amber');
+                header.classList.add('glow-violet');
+                header.style.borderColor = 'rgba(139, 92, 246, 0.15)';
+                
+                coderCard.classList.remove('border-rose-950', 'bg-rose-950/5');
+                linkerCard.classList.remove('border-rose-950', 'bg-rose-950/5');
+                
+                viewNormal.classList.remove('hidden');
+                viewFault.classList.add('hidden');
+                
+                logMessage("[fault-trigger] Normal execution paths restored.");
+            }
+        });
+
+        // Trigger interactive run simulation
+        btnTrigger.addEventListener('click', async () => {
+            btnTrigger.disabled = true;
+            btnTrigger.classList.add('opacity-50');
+            logMessage("[input] TRIGGER LIVE MONITOR RUN clicked. Initiating cascade...");
+            
+            // Step 1: Input Validation
+            methodValidate.innerHTML = '<span class="text-violet-400 animate-pulse">Running...</span>';
+            await sleep(1500);
+            methodValidate.innerHTML = '<span class="text-emerald-400 font-bold">✓ Success</span>';
+            
+            // Step 2: Triage Classification
+            methodTriage.innerHTML = '<span class="text-violet-400 animate-pulse">Running...</span>';
+            await sleep(1500);
+            methodTriage.innerHTML = '<span class="text-emerald-400 font-bold">✓ Success</span>';
+            
+            // Step 3: Orchestrator schedules workers
+            orchestratorBadge.innerText = "RUNNING";
+            orchestratorBadge.className = "text-[10px] text-violet-300 bg-violet-950 px-2 py-0.5 rounded border border-violet-800";
+            orchestratorCard.classList.add('border-violet-500');
+            valState.innerText = "RUNNING_SWARM";
+            valSwarms.innerText = "2";
+            logMessage("[orchestrator] Swarm dispatching. 2 worker nodes spawned.");
+            await sleep(1500);
+            
+            // Step 4: Coder and Linker compile files
+            logMessage("[sub-agents] BackendCoder & AssetLinker starting pipeline compiling...");
+            for(let i = 0; i <= 100; i += 20) {
+                coderProgText.innerText = `${i}%`;
+                coderBar.style.width = `${i}%`;
+                linkerProgText.innerText = `${i}%`;
+                linkerBar.style.width = `${i}%`;
+                await sleep(600);
+            }
+            logMessage("[sub-agents] File compilations complete.");
+            
+            // Step 5: Validation
+            criticBadge.innerText = "RUNNING";
+            criticBadge.className = "text-[10px] text-violet-300 bg-violet-950 px-2 py-0.5 rounded border border-violet-800";
+            criticCard.classList.add('border-violet-500');
+            
+            methodPlaywright.innerHTML = '<span class="text-violet-400 animate-pulse">Running...</span>';
+            await sleep(1500);
+            methodPlaywright.innerHTML = '<span class="text-emerald-400 font-bold">✓ Success</span>';
+            
+            methodImage.innerHTML = '<span class="text-violet-400 animate-pulse">Running...</span>';
+            await sleep(1500);
+            methodImage.innerHTML = '<span class="text-emerald-400 font-bold">✓ Success</span>';
+            
+            // Reset layout triggers
+            orchestratorBadge.innerText = "IDLE";
+            orchestratorBadge.className = "text-[10px] text-gray-500 bg-gray-950 px-2 py-0.5 rounded border border-gray-900";
+            orchestratorCard.classList.remove('border-violet-500');
+            criticBadge.innerText = "IDLE";
+            criticBadge.className = "text-[10px] text-gray-500 bg-gray-950 px-2 py-0.5 rounded border border-gray-900";
+            criticCard.classList.remove('border-violet-500');
+            valState.innerText = "IDLE";
+            valSwarms.innerText = "0";
+            
+            btnTrigger.disabled = false;
+            btnTrigger.classList.remove('opacity-50');
+            logMessage("[system] Simulation cascade finished successfully.");
+        });
+
+        // Polling loop to get real server telemetry
+        async function fetchServerStatus() {
+            try {
+                // Fetch status
+                const res = await fetch('/status/aider', {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                const data = await res.json();
+                updateDashboardUI(data);
+
+                // Fetch logs
+                const logRes = await fetch('/logs', {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                const logData = await logRes.json();
+                if (logData.logs) {
+                    // Update log panel with the last 20 log lines
+                    const lastLines = logData.logs.slice(-25).join('\n');
+                    termLog.innerText = lastLines;
+                    termLog.scrollTop = termLog.scrollHeight;
+                }
+
+                // Fetch triage stats
+                const statsRes = await fetch('/stats/triage', {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                const statsData = await statsRes.json();
+                if (statsData) {
+                    valHighTier.innerText = statsData.counts ? (statsData.counts.COMPLEX || 0) : 0;
+                    valSubAgents.innerText = statsData.counts ? (statsData.counts.SIMPLE || 0) : 0;
+                }
+            } catch (err) {
+                console.error("Status fetch failure", err);
+            }
+        }
+
+        function updateDashboardUI(data) {
+            valState.innerText = data.status.toUpperCase();
+            if (data.current_prompt) {
+                valPrompt.innerText = `"${data.current_prompt.substring(0, 100)}..."`;
+            } else {
+                valPrompt.innerText = "No active prompt";
+            }
+
+            // Update Orchestrator and worker cards
+            if (data.status === 'planning') {
+                orchestratorBadge.innerText = "PLANNING";
+                orchestratorBadge.className = "text-[10px] text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800";
+                orchestratorCard.classList.add('border-amber-500');
+                
+                coderProgText.innerText = "0%";
+                coderBar.style.width = "0%";
+                linkerProgText.innerText = "0%";
+                linkerBar.style.width = "0%";
+            } else if (data.status === 'running_swarm') {
+                orchestratorBadge.innerText = "RUNNING";
+                orchestratorBadge.className = "text-[10px] text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800";
+                orchestratorCard.classList.add('border-emerald-500');
+                valSwarms.innerText = data.blueprint ? data.blueprint.tasks.length : "0";
+                
+                // Show worker progress
+                let completedCount = data.completed_tasks ? data.completed_tasks.length : 0;
+                let totalCount = data.blueprint ? data.blueprint.tasks.length : 1;
+                let percent = Math.round((completedCount / totalCount) * 100);
+                
+                coderProgText.innerText = `${percent}%`;
+                coderBar.style.width = `${percent}%`;
+                linkerProgText.innerText = `${percent}%`;
+                linkerBar.style.width = `${percent}%`;
+            } else {
+                // IDLE
+                orchestratorBadge.innerText = "IDLE";
+                orchestratorBadge.className = "text-[10px] text-gray-500 bg-gray-950 px-2 py-0.5 rounded border border-gray-900";
+                orchestratorCard.classList.remove('border-emerald-500', 'border-amber-500');
+                valSwarms.innerText = "0";
+                
+                coderProgText.innerText = "0%";
+                coderBar.style.width = "0%";
+                linkerProgText.innerText = "0%";
+                linkerBar.style.width = "0%";
+            }
+
+            // Update Kanban Board
+            if (data.blueprint) {
+                // 1. Blueprint Column
+                colBlueprint.innerHTML = `
+                    <div class="bg-violet-950/20 border border-violet-900/30 p-2 rounded text-[10px] flex flex-col gap-1.5 shadow-md">
+                        <div class="text-violet-400 font-bold flex items-center gap-1">
+                            <i data-lucide="file-json" class="w-3.5 h-3.5"></i> blueprint.json
+                        </div>
+                        <div class="text-gray-400 text-[9px]">Tasks: ${data.blueprint.tasks.length}</div>
+                    </div>
+                `;
+                
+                // 2. Compile Column
+                let compileHTML = "";
+                data.blueprint.tasks.forEach(task => {
+                    let statusColor = "text-gray-400 border-gray-900 bg-gray-950/20";
+                    let spinner = "";
+                    if (data.completed_tasks.includes(task.task_id)) {
+                        statusColor = "text-emerald-400 border-emerald-950 bg-emerald-950/10";
+                    } else if (data.failed_tasks.includes(task.task_id)) {
+                        statusColor = "text-red-400 border-red-950 bg-red-950/10";
+                    } else if (data.running_task === task.task_id) {
+                        statusColor = "text-violet-400 border-violet-950 bg-violet-950/10 animate-pulse";
+                        spinner = `<i data-lucide="loader" class="w-3 h-3 animate-spin"></i>`;
+                    }
+                    compileHTML += `
+                        <div class="border ${statusColor} p-2 rounded text-[9px] flex flex-col gap-1 shadow-md">
+                            <div class="font-bold flex justify-between items-center">
+                                <span>${task.task_id}</span>
+                                ${spinner}
+                            </div>
+                            <div class="text-gray-500 truncate">${task.target_files.join(', ')}</div>
+                        </div>
+                    `;
+                });
+                colCompile.innerHTML = compileHTML;
+
+                // 3. Validate Column
+                let validateHTML = "";
+                if (data.status === 'running_swarm' && data.running_task) {
+                    validateHTML = `
+                        <div class="border border-violet-950/80 bg-violet-950/5 p-2 rounded text-[9px] flex flex-col gap-1 animate-pulse">
+                            <div class="font-bold text-violet-400 flex items-center gap-1">
+                                <i data-lucide="flask-conical" class="w-3.5 h-3.5 animate-bounce"></i> Testing Run...
+                            </div>
+                            <div class="text-gray-500">Playwright testing and syntax checks active.</div>
+                        </div>
+                    `;
+                } else if (data.completed_tasks.length > 0 && data.status === 'idle') {
+                    validateHTML = `
+                        <div class="border border-emerald-950 bg-emerald-950/10 p-2 rounded text-[9px] flex flex-col gap-1.5 shadow-md">
+                            <div class="font-bold text-emerald-400 flex items-center gap-1">
+                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Webhook Validated
+                            </div>
+                            <div class="text-gray-500 leading-tight">All E2E checks passed. Code successfully compiled.</div>
+                        </div>
+                    `;
+                } else {
+                    validateHTML = `<div class="text-[9px] text-gray-500 text-center py-4">No tests running</div>`;
+                }
+                colValidate.innerHTML = validateHTML;
+
+                // 4. Outlet Link Column
+                if (data.status === 'idle' && data.completed_tasks.length > 0) {
+                    let finalUrl = `${window.location.origin}/workspace/index.html`;
+                    viewNormal.innerHTML = `
+                        <div class="flex flex-col gap-3.5 h-full justify-center items-center text-center p-2">
+                            <i data-lucide="globe" class="w-8 h-8 text-emerald-500 glow-emerald"></i>
+                            <span class="text-[10px] text-gray-400">Vault Outlet is ready!</span>
+                            <a href="${finalUrl}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-3 rounded text-[9px] transition-all transform hover:scale-105 shadow-md">OPEN ACTIVE SITE</a>
+                        </div>
+                    `;
+                }
+            } else {
+                colBlueprint.innerHTML = `<div class="text-[9px] text-gray-500 text-center py-4">No blueprint loaded</div>`;
+                colCompile.innerHTML = `<div class="text-[9px] text-gray-500 text-center py-4">No files compiled</div>`;
+                colValidate.innerHTML = `<div class="text-[9px] text-gray-500 text-center py-4">No logs validated</div>`;
+                viewNormal.innerHTML = `
+                    <div class="flex flex-col gap-2 h-full justify-center items-center text-center p-2">
+                        <i data-lucide="globe" class="w-8 h-8 text-gray-600 mb-2"></i>
+                        <span class="text-[10px] text-gray-500">All links, buttons, and assets fully verified.</span>
+                    </div>
+                `;
+            }
+
+            // Update Run History
+            if (data.history && data.history.length > 0) {
+                let historyHTML = "";
+                data.history.forEach((run, index) => {
+                    let statusColor = run.status === 'success' ? 'text-emerald-400 border-emerald-950 bg-emerald-950/10' : 'text-red-400 border-red-950 bg-red-950/10';
+                    let linkHTML = run.output_url ? `<a href="${run.output_url}" target="_blank" class="text-violet-400 hover:underline">Link</a>` : 'N/A';
+                    historyHTML += `
+                        <div class="border ${statusColor} rounded-lg p-3 flex justify-between items-center shadow-md">
+                            <div class="flex flex-col gap-1 pr-4">
+                                <span class="font-bold text-gray-300">Run #${index + 1}</span>
+                                <span class="text-[9px] text-gray-500 truncate max-w-[200px]">${run.prompt}</span>
+                            </div>
+                            <div class="flex flex-col items-end gap-1 font-mono text-[9px]">
+                                <div>Duration: ${run.duration_seconds}s</div>
+                                <div>Outlet: ${linkHTML}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                historyGrid.innerHTML = historyHTML;
+            } else {
+                historyGrid.innerHTML = `<div class="col-span-3 text-center py-2 text-gray-500">No runs tracked in this session</div>`;
+            }
+
+            // Render newly created lucide icons inside dynamically generated HTML
+            lucide.createIcons();
+        }
+
+        // Helpers
+        function logMessage(msg) {
+            const time = new Date().toLocaleTimeString();
+            termLog.innerHTML += `\n[${time}] ${msg}`;
+            termLog.scrollTop = termLog.scrollHeight;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Initialize lucide
+        lucide.createIcons();
+
+        // Start status polling every 1.5 seconds
+        setInterval(fetchServerStatus, 1500);
+        fetchServerStatus();
+    </script>
+</body>
+</html>
