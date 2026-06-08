@@ -184,6 +184,31 @@ async def proxy_api(request: Request, path: str):
     except Exception as e:
         return JSONResponse(status_code=502, content={"status": "error", "message": "Backend proxy failed"})
 
+
+@app.api_route("/workspace-api/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+async def proxy_workspace_api(request: Request, path: str):
+    target_url = f"http://localhost:9000/{path}"
+    try:
+        async with httpx.AsyncClient() as client:
+            body = await request.body()
+            headers = dict(request.headers)
+            headers.pop("host", None)
+            response = await client.request(
+                method=request.method,
+                url=target_url,
+                headers=headers,
+                content=body,
+                params=request.query_params,
+                timeout=15.0
+            )
+            try:
+                content = response.json()
+            except:
+                content = response.text
+            return JSONResponse(status_code=response.status_code, content=content)
+    except Exception as e:
+        return JSONResponse(status_code=502, content={"status": "error", "message": f"Workspace API proxy failed: {str(e)}"})
+
 @app.websocket("/ws")
 async def websocket_proxy(websocket: WebSocket):
     await websocket.accept()
