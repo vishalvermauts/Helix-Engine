@@ -154,7 +154,7 @@ class PlannerAgent:
 
         payload = {
             "systemInstruction": {"parts": [{"text": system_instruction}]},
-            "contents": [{"parts": [{"text": user_prompt}]}],
+            "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
             "generationConfig": {
                 "temperature": 0.1,
                 "responseMimeType": "application/json",
@@ -258,7 +258,7 @@ async def generate_e2e_verification_script(blueprint_json: dict, url: str = "htt
 
     payload = {
         "systemInstruction": {"parts": [{"text": system_instruction}]},
-        "contents": [{"parts": [{"text": f"Generate the E2E structural verification script for a page at: {url}"}]}],
+        "contents": [{"role": "user", "parts": [{"text": f"Generate the E2E structural verification script for a page at: {url}"}]}],
         "generationConfig": {
             "temperature": 0.1,
             "responseMimeType": "text/plain"
