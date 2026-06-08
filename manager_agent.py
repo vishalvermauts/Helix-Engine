@@ -1,3 +1,19 @@
+# =============================================================================
+# DEPRECATED — manager_agent.py
+# =============================================================================
+# Status  : ARCHIVED — not imported by any active code path
+# Replaced: agents/orchestrator.py  (swarm execution)
+#           agents/planner_agent.py (blueprint generation)
+#           agents/triage_router.py (model routing)
+#
+# Preserved because:
+#   - capture_screenshot() + analyze_vision_feedback() contain a Gemini
+#     multimodal vision loop that may be revived as a visual QA skill.
+#   - run_aider_cycle() shows the original sync aider integration pattern.
+#
+# DO NOT import this module from server.py or any active agent.
+# =============================================================================
+
 import os
 import base64
 import subprocess
@@ -33,7 +49,18 @@ class OrchestratorAgent:
         print(result.stdout)
         if result.stderr:
             print("[AirCode System Error]:", result.stderr)
-        return "Workspace modifications written successfully."
+            
+        # Validate the workspace code against contracts
+        from lib.contract_validator import ContractValidator
+        validator = ContractValidator(str(WORKSPACE_DIR))
+        is_valid, msg = validator.validate_workspace()
+        
+        if not is_valid:
+            print(f"[AirCode System] AST Validation Failed: {msg}")
+            # Trigger automatic correction cycle
+            return f"CRITICAL VALIDATION ERROR: {msg}. Please immediately fix the code to match the active_blueprint.json contract."
+            
+        return "Workspace modifications written and validated successfully."
 
     def capture_screenshot(self) -> str:
         """Triggers Playwright CLI headlessly to snapshot visual layout canvases."""

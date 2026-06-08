@@ -15,6 +15,7 @@ class HelixConfig:
     GEMINI_API_KEY: str = field(default_factory=lambda: os.getenv("GEMINI_API_KEY", ""))
     TELEGRAM_TOKEN: str = field(default_factory=lambda: os.getenv("TELEGRAM_TOKEN", ""))
     DEEPSEEK_API_KEY: str = field(default_factory=lambda: os.getenv("DEEPSEEK_API_KEY", ""))
+    NGROK_AUTHTOKEN: str = field(default_factory=lambda: os.getenv("NGROK_AUTHTOKEN", ""))
 
     # Core Settings
     GEMINI_API_BASE: str = field(default="https://generativelanguage.googleapis.com/v1beta")
@@ -29,6 +30,16 @@ class HelixConfig:
     PORT: int = field(default=8000)
     TRIAGE_ENABLED: bool = field(default=True)
     TRIAGE_TIMEOUT: float = field(default=1.5)
+    # Phase 5: Canary gate — 0.0 routes no traffic through triage, 1.0 routes all
+    # Set to e.g. 0.25 to start canary at 25% before going 100%
+    TRIAGE_CANARY_RATE: float = field(default=1.0)
+    # Safety fallback model if triage fails or is disabled
+    TRIAGE_FALLBACK_MODEL: str = field(default_factory=lambda: os.getenv("TRIAGE_FALLBACK_MODEL", "gemini/gemini-2.5-pro"))
+    # Phase 5: How often (seconds) to send periodic triage stats to Telegram
+    TRIAGE_STATS_INTERVAL: int = field(default=3600)
+    # Phase 6: Optional Claude routing (leave blank to disable)
+    CLAUDE_API_KEY: str = field(default_factory=lambda: os.getenv("CLAUDE_API_KEY", ""))
+    CLAUDE_MODEL: str = field(default_factory=lambda: os.getenv("CLAUDE_MODEL", "claude-3-5-haiku-20241022"))
 
     def __post_init__(self):
         # Type coercion logic
@@ -36,6 +47,13 @@ class HelixConfig:
         self.AIDER_TIMEOUT = int(os.getenv("AIDER_TIMEOUT", self.AIDER_TIMEOUT))
         self.PORT = int(os.getenv("PORT", self.PORT))
         self.TRIAGE_TIMEOUT = float(os.getenv("TRIAGE_TIMEOUT", self.TRIAGE_TIMEOUT))
+        self.TRIAGE_STATS_INTERVAL = int(os.getenv("TRIAGE_STATS_INTERVAL", self.TRIAGE_STATS_INTERVAL))
+        
+        raw_canary = os.getenv("TRIAGE_CANARY_RATE", str(self.TRIAGE_CANARY_RATE))
+        try:
+            self.TRIAGE_CANARY_RATE = max(0.0, min(1.0, float(raw_canary)))
+        except ValueError:
+            self.TRIAGE_CANARY_RATE = 1.0
         
         triage_env = os.getenv("TRIAGE_ENABLED", str(self.TRIAGE_ENABLED)).lower()
         self.TRIAGE_ENABLED = triage_env in ("true", "1", "yes")
@@ -44,7 +62,7 @@ class HelixConfig:
         """Safely serialize config while scrubbing secrets."""
         data = asdict(self)
         # Redact secrets
-        for secret_key in ["GEMINI_API_KEY", "TELEGRAM_TOKEN", "DEEPSEEK_API_KEY"]:
+        for secret_key in ["GEMINI_API_KEY", "TELEGRAM_TOKEN", "DEEPSEEK_API_KEY", "NGROK_AUTHTOKEN", "CLAUDE_API_KEY"]:
             if data.get(secret_key):
                 data[secret_key] = "***REDACTED***"
             else:

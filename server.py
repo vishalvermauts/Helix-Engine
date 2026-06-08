@@ -3,14 +3,16 @@ import os
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 import httpx
+import websockets
 
 from lib.config import get_config
 from lib.logging import get_logger
-from agents.triage_router import get_triage_router
+from lib.config import reload_config
+from agents.triage_router import get_triage_router, get_triage_stats
 from agents.system_monitor import get_system_monitor
 from agents.planner_agent import get_planner_agent
 from agents.orchestrator import get_swarm_orchestrator
@@ -100,6 +102,58 @@ async def root_check():
         "timestamp": datetime.utcnow().isoformat() + "Z"
     }
 
+@app.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+async def proxy_api(request: Request, path: str):
+    target_url = f"http://localhost:8001/api/{path}"
+    try:
+        async with httpx.AsyncClient() as client:
+            body = await request.body()
+            headers = dict(request.headers)
+            headers.pop("host", None)
+            response = await client.request(
+                method=request.method,
+                url=target_url,
+                headers=headers,
+                content=body,
+                params=request.query_params
+            )
+            # Try to return JSON if valid, else raw text (wrapped in JSON for simplicity here)
+            try:
+                content = response.json()
+            except:
+                content = response.text
+            return JSONResponse(status_code=response.status_code, content=content)
+    except Exception as e:
+        return JSONResponse(status_code=502, content={"status": "error", "message": "Backend proxy failed"})
+
+@app.websocket("/ws")
+async def websocket_proxy(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        async with websockets.connect("ws://localhost:8001/ws") as backend_ws:
+            async def forward_to_backend():
+                try:
+                    while True:
+                        data = await websocket.receive_text()
+                        await backend_ws.send(data)
+                except WebSocketDisconnect:
+                    pass
+            
+            async def forward_to_client():
+                try:
+                    async for message in backend_ws:
+                        await websocket.send_text(message)
+                except websockets.exceptions.ConnectionClosed:
+                    pass
+            
+            await asyncio.gather(
+                forward_to_backend(),
+                forward_to_client()
+            )
+    except Exception as e:
+        logger.error("WebSocket proxy error", error=str(e))
+
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
@@ -119,6 +173,72 @@ async def get_logs():
 @app.get("/status/aider")
 async def get_aider_status():
     return execution_state
+
+
+@app.get("/stats/triage")
+async def get_triage_stats_endpoint():
+    """Phase 4/5: Return in-session triage routing statistics as JSON."""
+    stats = get_triage_stats()
+    return stats.summary_dict()
+
+
+@app.post("/admin/reload-config")
+async def admin_reload_config():
+    """
+    Phase 5: Hot-reload .env without restarting the server.
+
+    This lets you change TRIAGE_CANARY_RATE, TRIAGE_ENABLED, or any other
+    env var in .env and have it take effect immediately for the next request.
+    Note: the triage_stats singleton is NOT reset — only the config singleton
+    is refreshed.
+    """
+    global config
+    try:
+        config = reload_config()
+        logger.info("🔄 Config hot-reloaded", triage_enabled=config.TRIAGE_ENABLED,
+                    canary_rate=config.TRIAGE_CANARY_RATE)
+        return {
+            "status": "reloaded",
+            "triage_enabled": config.TRIAGE_ENABLED,
+            "triage_canary_rate": config.TRIAGE_CANARY_RATE,
+            "triage_stats_interval": config.TRIAGE_STATS_INTERVAL,
+            "gemini_model": config.GEMINI_MODEL,
+        }
+    except Exception as e:
+        logger.error("Config reload failed", error=str(e))
+        raise HTTPException(status_code=500, detail=f"Config reload failed: {e}")
+
+
+@app.post("/admin/reset-stats")
+async def admin_reset_stats():
+    """
+    Phase 5: Reset the in-memory TriageStats singleton to a fresh baseline.
+
+    Use this between canary windows for clean A/B cost comparisons:
+      1. Set TRIAGE_CANARY_RATE=0.1  →  POST /admin/reload-config  →  POST /admin/reset-stats
+      2. Let traffic run for N minutes
+      3. GET /stats/triage — record canary metrics
+      4. POST /admin/reset-stats
+      5. Set TRIAGE_CANARY_RATE=1.0  →  POST /admin/reload-config
+      6. Let traffic run for the same N minutes
+      7. GET /stats/triage — compare full-triage metrics vs canary
+    """
+    import agents.triage_router as _tr
+    old = _tr._triage_stats.summary_dict()
+    _tr._triage_stats = _tr.TriageStats()  # Replace singleton with fresh instance
+    logger.info("🔄 TriageStats reset", previous_total=old["total_classified"])
+    return {
+        "status": "reset",
+        "previous_session": old,
+        "message": "TriageStats singleton replaced. New measurement session started.",
+    }
+
+
+@app.get("/admin/config")
+async def admin_get_config():
+    """Return the current live config with secrets redacted — useful for verifying hot-reloads."""
+    return config.to_dict()
+
 
 @app.post("/webhook")
 async def telegram_webhook_gateway(request: Request):
@@ -158,6 +278,44 @@ async def telegram_webhook_gateway(request: Request):
             await send_telegram_message(chat_id, "⚠️ Log file not found.")
         return JSONResponse(status_code=200, content={"status": "logs_delivered"})
     
+    # Phase 4: on-demand triage stats report
+    if prompt.lower() in ["/triage", "triage"]:
+        if system_monitor_instance:
+            report = await system_monitor_instance.send_triage_report()
+        else:
+            from agents.triage_router import get_triage_stats as _gts
+            stats = _gts()
+            report = str(stats.summary_dict())
+            await send_telegram_message(chat_id, report)
+        return JSONResponse(status_code=200, content={"status": "triage_stats_delivered"})
+
+    # Phase 5: detailed cost analysis report (alias for /triage with extra detail)
+    if prompt.lower() in ["/cost-report", "cost-report", "/costreport"]:
+        stats = get_triage_stats()
+        s = stats.summary_dict()
+        baseline = s["total_classified"] * 0.005
+        actual = s["total_cost_usd"]
+        lines = [
+            "💹 *Cost Analysis Report*",
+            "",
+            f"Total requests : {s['total_classified']}",
+            f"Canary bypassed: {s.get('canary_bypassed', 0)}",
+            "",
+            "*Breakdown by type:*",
+            f"  SIMPLE           → {s['counts'].get('SIMPLE', 0)} × $0.0001 = ${s['counts'].get('SIMPLE', 0) * 0.0001:.4f}",
+            f"  COMPLEX          → {s['counts'].get('COMPLEX', 0)} × $0.0050 = ${s['counts'].get('COMPLEX', 0) * 0.005:.4f}",
+            f"  AGENT_GENERATION → {s['counts'].get('AGENT_GENERATION', 0)} × $0.0050 = ${s['counts'].get('AGENT_GENERATION', 0) * 0.005:.4f}",
+            f"  QA_TESTING       → {s['counts'].get('QA_TESTING', 0)} × $0.0050 = ${s['counts'].get('QA_TESTING', 0) * 0.005:.4f}",
+            "",
+            f"Actual spend   : ${actual:.4f}",
+            f"Baseline (all Gemini): ${baseline:.4f}",
+            f"💰 Saved          : ${s['estimated_savings_usd']:.4f} ({round(100 * s['estimated_savings_usd'] / max(0.0001, baseline), 1)}%)",
+            f"⚡ Simple ratio   : {s['simple_ratio_pct']}%",
+            f"🏆 Peak SIMPLE/hr : {s.get('peak_simple_per_hour', 0):.1f}",
+        ]
+        await send_telegram_message(chat_id, "\n".join(lines))
+        return JSONResponse(status_code=200, content={"status": "cost_report_delivered"})
+    
     logger.info("📨 Webhook received", user_id=user_id, prompt_len=len(prompt))
     
     selected_model = config.GEMINI_MODEL
@@ -196,11 +354,16 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
             
             execution_state["status"] = "running_swarm"
             
-            # Step 2: Swarm Execution
-            success = await orchestrator.execute(blueprint)
+            # Step 2: Swarm Execution — pass the triage-selected model so workers
+            # use it instead of falling back to the config default.
+            logger.info("🧠 Swarm dispatching", model=selected_model, classification=classification)
+            success = await orchestrator.execute(blueprint, selected_model=selected_model)
             
             if success:
                 success_msg = "✨ Swarm Execution completed successfully!"
+                if system_monitor_instance and system_monitor_instance.active_tunnel_url:
+                    url = f"{system_monitor_instance.active_tunnel_url}/workspace/index.html"
+                    success_msg += f"\n\n🌐 View your built UI here:\n{url}"
                 await send_telegram_message(chat_id, success_msg)
             else:
                 fail_msg = "❌ Swarm Execution finished with errors. Some tasks failed."

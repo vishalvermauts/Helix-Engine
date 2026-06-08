@@ -1,0 +1,16 @@
+{
+  "registry": [
+    {
+      "tags": ["all", "global"],
+      "rule": "Never hardcode secrets. Always use environment variables."
+    },
+    {
+      "tags": ["frontend", "react", "typescript"],
+      "rule": "Ensure fetch calls target /api/v1/ and use the correct port defined in the active_blueprint.json."
+    },
+    {
+      "tags": ["backend", "fastapi", "python"],
+      "rule": "Use absolute imports. Route definitions must exactly match active_blueprint.json specifications."
+    }
+  ]
+}
