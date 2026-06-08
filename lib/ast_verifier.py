@@ -212,8 +212,10 @@ def verify_and_sync_dependencies(file_path: str):
             
         print(f"📦 [Pip Interceptor] Missing import detected: '{module}'. Resolving environment package balance...")
         try:
-            # Dynamically target context virtual env pip binary
-            subprocess.run(["pip", "install", module], check=True, stdout=subprocess.DEVNULL)
+            # Dynamically target context virtual env pip binary via sys.executable
+            import sys
+            subprocess.run([sys.executable, "-m", "pip", "install", module], check=True, stdout=subprocess.DEVNULL)
             print(f"✅ [Pip Interceptor] Successfully synchronized '{module}' inside sandbox runtime.")
         except subprocess.CalledProcessError:
             print(f"❌ [Pip Interceptor] Failed automatic installation hook for module: {module}")
+
