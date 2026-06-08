@@ -34,12 +34,48 @@ execution_state = {
     "history": []
 }
 
+active_connections = set()
+log_tail_task = None
 monitor_task = None
 system_monitor_instance = None
 
+async def broadcast_state_update():
+    if active_connections:
+        payload = {"type": "status", "data": execution_state}
+        await asyncio.gather(
+            *[conn.send_json(payload) for conn in active_connections],
+            return_exceptions=True
+        )
+
+async def tail_logs_daemon():
+    log_path = Path("logs/aircode.log")
+    # Wait for log file to exist
+    while not log_path.exists():
+        await asyncio.sleep(1)
+        
+    with open(log_path, "r", encoding="utf-8") as f:
+        f.seek(0, os.SEEK_END)
+        while True:
+            try:
+                line = f.readline()
+                if not line:
+                    await asyncio.sleep(0.1) # Check for new lines every 100ms
+                    continue
+                if active_connections:
+                    payload = {"type": "log", "data": line}
+                    await asyncio.gather(
+                        *[conn.send_json(payload) for conn in active_connections],
+                        return_exceptions=True
+                    )
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logger.error("Log tailing daemon error", error=str(e))
+                await asyncio.sleep(1)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global monitor_task, system_monitor_instance
+    global monitor_task, system_monitor_instance, log_tail_task
     try:
         logger.info("🚀 Helix Engine initializing...", config=config.to_dict())
         
@@ -53,6 +89,9 @@ async def lifespan(app: FastAPI):
         system_monitor_instance = get_system_monitor()
         monitor_task = asyncio.create_task(system_monitor_instance.run_daemon())
         
+        # Start log tailing daemon
+        log_tail_task = asyncio.create_task(tail_logs_daemon())
+        
         logger.info("✅ Helix Engine startup complete", workspace=str(workspace_dir))
     except Exception as e:
         logger.critical("❌ Startup failed", error=str(e), exc_info=True)
@@ -63,6 +102,8 @@ async def lifespan(app: FastAPI):
     logger.info("🛑 Helix Engine shutting down...")
     if monitor_task:
         monitor_task.cancel()
+    if log_tail_task:
+        log_tail_task.cancel()
     if system_monitor_instance:
         await system_monitor_instance.stop()
 
@@ -169,6 +210,24 @@ async def websocket_proxy(websocket: WebSocket):
             )
     except Exception as e:
         logger.error("WebSocket proxy error", error=str(e))
+
+
+@app.websocket("/ws/dashboard")
+async def dashboard_websocket(websocket: WebSocket):
+    await websocket.accept()
+    active_connections.add(websocket)
+    try:
+        # Send initial state immediately
+        await websocket.send_json({"type": "status", "data": execution_state})
+        while True:
+            # Keep connection open and listen for disconnects
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        pass
+    except Exception as e:
+        logger.error("Dashboard WebSocket error", error=str(e))
+    finally:
+        active_connections.discard(websocket)
 
 
 @app.get("/health")
@@ -363,6 +422,7 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
         execution_state["completed_tasks"] = []
         execution_state["failed_tasks"] = []
         execution_state["running_task"] = None
+        await broadcast_state_update()
         
         try:
             logger.info("🔨 Phase 6 Execution started", user_id=user_id)
@@ -375,18 +435,21 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
             # Setup dynamic callbacks on orchestrator to feed task progress to dashboard
             def on_task_start(task_id: str):
                 execution_state["running_task"] = task_id
+                asyncio.create_task(broadcast_state_update())
                 
             def on_task_complete(task_id: str):
                 if task_id not in execution_state["completed_tasks"]:
                     execution_state["completed_tasks"].append(task_id)
                 if execution_state["running_task"] == task_id:
                     execution_state["running_task"] = None
+                asyncio.create_task(broadcast_state_update())
                     
             def on_task_fail(task_id: str):
                 if task_id not in execution_state["failed_tasks"]:
                     execution_state["failed_tasks"].append(task_id)
                 if execution_state["running_task"] == task_id:
                     execution_state["running_task"] = None
+                asyncio.create_task(broadcast_state_update())
 
             orchestrator.on_task_start = on_task_start
             orchestrator.on_task_complete = on_task_complete
@@ -395,10 +458,12 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
             # Step 1: Planning
             blueprint = await planner.generate(prompt, task_type=classification, matched_skills=matched_skills)
             execution_state["blueprint"] = blueprint.dict() if hasattr(blueprint, 'dict') else blueprint.model_dump()
+            await broadcast_state_update()
             
             await send_telegram_message(chat_id, f"📝 Planner generated {len(blueprint.tasks)} tasks. Launching Swarm Workers...")
             
             execution_state["status"] = "running_swarm"
+            await broadcast_state_update()
             
             # Step 2: Swarm Execution — pass the triage-selected model so workers
             # use it instead of falling back to the config default.
@@ -419,6 +484,7 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
                 "output_url": output_url
             }
             execution_state["history"].append(run_history_item)
+            await broadcast_state_update()
             
             if success:
                 success_msg = "✨ Swarm Execution completed successfully!"
@@ -441,6 +507,7 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
                 "status": "failed",
                 "output_url": None
             })
+            await broadcast_state_update()
         finally:
             execution_state["status"] = "idle"
             execution_state["pid"] = None
@@ -449,6 +516,7 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
             execution_state["start_time"] = None
             execution_state["blueprint"] = None
             execution_state["running_task"] = None
+            await broadcast_state_update()
 
 if __name__ == "__main__":
     import uvicorn

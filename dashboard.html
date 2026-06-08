@@ -417,28 +417,58 @@
             logMessage("[system] Simulation cascade finished successfully.");
         });
 
-        // Polling loop to get real server telemetry
-        async function fetchServerStatus() {
-            try {
-                // Fetch status
-                const res = await fetch('/status/aider', {
-                    headers: { 'ngrok-skip-browser-warning': 'true' }
-                });
-                const data = await res.json();
-                updateDashboardUI(data);
+        let ws = null;
+        let pollingInterval = null;
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws';
+        const wsUrl = `${wsProtocol}://${window.location.host}/ws/dashboard`;
 
-                // Fetch logs
+        function startWebSocket() {
+            console.log("Connecting to WebSocket telemetry...");
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = async () => {
+                console.log("WebSocket telemetry connected.");
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                    pollingInterval = null;
+                }
+                await fetchLogsAndStats();
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const msg = JSON.parse(event.data);
+                    if (msg.type === 'status') {
+                        updateDashboardUI(msg.data);
+                    } else if (msg.type === 'log') {
+                        appendLogLine(msg.data);
+                    }
+                } catch (err) {
+                    console.error("Error parsing WebSocket message:", err);
+                }
+            };
+
+            ws.onclose = () => {
+                console.warn("WebSocket telemetry disconnected. Falling back to polling...");
+                startPolling();
+            };
+
+            ws.onerror = (err) => {
+                console.error("WebSocket telemetry error:", err);
+            };
+        }
+
+        async function fetchLogsAndStats() {
+            try {
                 const logRes = await fetch('/logs', {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 });
                 const logData = await logRes.json();
                 if (logData.logs) {
-                    const lastLines = logData.logs.slice(-25).join('\n');
-                    termLog.innerText = lastLines;
+                    termLog.innerText = logData.logs.join('');
                     termLog.scrollTop = termLog.scrollHeight;
                 }
 
-                // Fetch triage stats
                 const statsRes = await fetch('/stats/triage', {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 });
@@ -448,7 +478,36 @@
                     valSubAgents.innerText = statsData.counts ? (statsData.counts.SIMPLE || 0) : 0;
                 }
             } catch (err) {
+                console.error("Error fetching logs and stats:", err);
+            }
+        }
+
+        function appendLogLine(line) {
+            termLog.innerText += line;
+            const lines = termLog.innerText.split('\n');
+            if (lines.length > 200) {
+                termLog.innerText = lines.slice(lines.length - 200).join('\n');
+            }
+            termLog.scrollTop = termLog.scrollHeight;
+        }
+
+        async function fetchServerStatus() {
+            try {
+                const res = await fetch('/status/aider', {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                const data = await res.json();
+                updateDashboardUI(data);
+                await fetchLogsAndStats();
+            } catch (err) {
                 console.error("Status fetch failure", err);
+            }
+        }
+
+        function startPolling() {
+            if (!pollingInterval) {
+                pollingInterval = setInterval(fetchServerStatus, 1500);
+                fetchServerStatus();
             }
         }
 
@@ -623,9 +682,8 @@
         // Initialize lucide
         lucide.createIcons();
 
-        // Start status polling every 1.5 seconds
-        setInterval(fetchServerStatus, 1500);
-        fetchServerStatus();
+        // Start WebSocket telemetry connection with polling fallback
+        startWebSocket();
     </script>
 </body>
 </html>
