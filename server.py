@@ -66,8 +66,18 @@ app = FastAPI(
 )
 
 # Static mount for /workspace
-static_dir = Path(config.WORKSPACE_DIR) / "workspace"
+static_dir = Path(config.WORKSPACE_DIR)
 static_dir.mkdir(parents=True, exist_ok=True)
+
+@app.middleware("http")
+async def disable_cache_for_workspace(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/workspace"):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
 app.mount("/workspace", StaticFiles(directory=str(static_dir)), name="workspace")
 
 async def send_telegram_message(chat_id: int, text: str, max_retries: int = 2):
@@ -341,7 +351,7 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
             logger.info("🔨 Phase 6 Execution started", user_id=user_id)
             await send_telegram_message(chat_id, f"🚀 Executing via Helix Engine Phase 6 Grid...")
             
-            workspace_dir = str(Path(config.WORKSPACE_DIR) / "workspace")
+            workspace_dir = str(Path(config.WORKSPACE_DIR))
             planner = get_planner_agent()
             orchestrator = get_swarm_orchestrator(workspace_dir)
             
