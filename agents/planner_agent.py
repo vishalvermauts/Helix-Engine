@@ -30,15 +30,38 @@ class PlannerAgent:
         self.config = get_config()
 
     async def generate(self, user_prompt: str, task_type: str = "COMPLEX", matched_skills: list = None) -> ProjectBlueprint:
-        if not self.config.GEMINI_API_KEY:
-            raise ValueError("GEMINI_API_KEY is not set in configuration")
+        if self.config.VERTEX_ENABLED:
+            import google.auth
+            import google.auth.transport.requests
+            
+            credentials, project = google.auth.default()
+            auth_req = google.auth.transport.requests.Request()
+            credentials.refresh(auth_req)
+            token = credentials.token
+            
+            model = self.config.GEMINI_MODEL
+            if "/" in model:
+                model = model.split("/")[-1]
+                
+            url = (
+                f"https://{self.config.VERTEX_LOCATION}-aiplatform.googleapis.com/v1"
+                f"/projects/{self.config.VERTEX_PROJECT}/locations/{self.config.VERTEX_LOCATION}"
+                f"/publishers/google/models/{model}:generateContent"
+            )
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+            }
+        else:
+            if not self.config.GEMINI_API_KEY:
+                raise ValueError("GEMINI_API_KEY is not set in configuration")
 
-        model = self.config.GEMINI_MODEL
-        if model.startswith("gemini/"):
-            model = model.replace("gemini/", "")
+            model = self.config.GEMINI_MODEL
+            if model.startswith("gemini/"):
+                model = model.replace("gemini/", "")
 
-        url = f"{self.config.GEMINI_API_BASE.rstrip('/')}/models/{model}:generateContent?key={self.config.GEMINI_API_KEY}"
-        headers = {"Content-Type": "application/json"}
+            url = f"{self.config.GEMINI_API_BASE.rstrip('/')}/models/{model}:generateContent?key={self.config.GEMINI_API_KEY}"
+            headers = {"Content-Type": "application/json"}
 
         system_instruction = "You are the Phase 6 Planner Agent for the AirCode Swarm Orchestrator. "
         if task_type == "AGENT_GENERATION":
@@ -180,15 +203,38 @@ def get_planner_agent():
 async def generate_e2e_verification_script(blueprint_json: dict, url: str = "http://localhost:8000/workspace/index.html") -> str:
     """Instructs the Planner to emit a clean Playwright verification script based on the API layout."""
     config = get_config()
-    if not config.GEMINI_API_KEY:
-        raise ValueError("GEMINI_API_KEY is not set in configuration")
+    if config.VERTEX_ENABLED:
+        import google.auth
+        import google.auth.transport.requests
+        
+        credentials, project = google.auth.default()
+        auth_req = google.auth.transport.requests.Request()
+        credentials.refresh(auth_req)
+        token = credentials.token
+        
+        model = config.GEMINI_MODEL
+        if "/" in model:
+            model = model.split("/")[-1]
+            
+        api_url = (
+            f"https://{config.VERTEX_LOCATION}-aiplatform.googleapis.com/v1"
+            f"/projects/{config.VERTEX_PROJECT}/locations/{config.VERTEX_LOCATION}"
+            f"/publishers/google/models/{model}:generateContent"
+        )
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+    else:
+        if not config.GEMINI_API_KEY:
+            raise ValueError("GEMINI_API_KEY is not set in configuration")
 
-    model = config.GEMINI_MODEL
-    if model.startswith("gemini/"):
-        model = model.replace("gemini/", "")
+        model = config.GEMINI_MODEL
+        if model.startswith("gemini/"):
+            model = model.replace("gemini/", "")
 
-    api_url = f"{config.GEMINI_API_BASE.rstrip('/')}/models/{model}:generateContent?key={config.GEMINI_API_KEY}"
-    headers = {"Content-Type": "application/json"}
+        api_url = f"{config.GEMINI_API_BASE.rstrip('/')}/models/{model}:generateContent?key={config.GEMINI_API_KEY}"
+        headers = {"Content-Type": "application/json"}
     
     hints = ""
     for task in blueprint_json.get("tasks", []):

@@ -74,6 +74,13 @@ class SwarmOrchestrator:
         """
         # Resolve the model that all workers will use
         worker_model = selected_model or self.config.GEMINI_MODEL
+        if self.config.VERTEX_ENABLED:
+            if not worker_model.startswith("vertex_ai/"):
+                if "/" in worker_model:
+                    worker_model = "vertex_ai/" + worker_model.split("/")[-1]
+                else:
+                    worker_model = "vertex_ai/" + worker_model
+                    
         logger.info(
             f"🚀 Starting Swarm Orchestrator with {len(blueprint.tasks)} tasks.",
             model=worker_model,
@@ -128,7 +135,12 @@ class SwarmOrchestrator:
                 try:
                     # Execute Aider via subprocess
                     env = os.environ.copy()
-                    env["GEMINI_API_KEY"] = self.config.GEMINI_API_KEY
+                    if self.config.VERTEX_ENABLED:
+                        env["VERTEXAI_PROJECT"] = self.config.VERTEX_PROJECT
+                        env["VERTEXAI_LOCATION"] = self.config.VERTEX_LOCATION
+                        env.pop("GEMINI_API_KEY", None)
+                    else:
+                        env["GEMINI_API_KEY"] = self.config.GEMINI_API_KEY
                     
                     if "HELIX_MOCK_LLM_PAYLOAD" in os.environ:
                         logger.info(f"TEST HOOK: Bypassing Aider execution for {task.task_id} to conserve API credits.")

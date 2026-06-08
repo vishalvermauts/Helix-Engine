@@ -31,7 +31,8 @@ execution_state = {
     "completed_tasks": [],
     "failed_tasks": [],
     "running_task": None,
-    "history": []
+    "history": [],
+    "classification": None
 }
 
 active_connections = set()
@@ -447,6 +448,7 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
         execution_state["completed_tasks"] = []
         execution_state["failed_tasks"] = []
         execution_state["running_task"] = None
+        execution_state["classification"] = classification
         await broadcast_state_update()
         
         try:

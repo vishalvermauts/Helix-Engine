@@ -41,6 +41,15 @@ class HelixConfig:
     CLAUDE_API_KEY: str = field(default_factory=lambda: os.getenv("CLAUDE_API_KEY", ""))
     CLAUDE_MODEL: str = field(default_factory=lambda: os.getenv("CLAUDE_MODEL", "claude-3-5-haiku-20241022"))
 
+    # Vertex AI Configuration
+    VERTEX_PROJECT: str = field(default_factory=lambda: os.getenv("VERTEX_PROJECT", os.getenv("VERTEXAI_PROJECT", "")))
+    VERTEX_LOCATION: str = field(default_factory=lambda: os.getenv("VERTEX_LOCATION", os.getenv("VERTEXAI_LOCATION", "us-central1")))
+
+    @property
+    def VERTEX_ENABLED(self) -> bool:
+        return bool(self.VERTEX_PROJECT)
+
+
     def __post_init__(self):
         # Type coercion logic
         self.ALLOWED_USER_ID = int(os.getenv("ALLOWED_USER_ID", self.ALLOWED_USER_ID))

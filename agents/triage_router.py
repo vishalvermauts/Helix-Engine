@@ -270,12 +270,26 @@ class TriageRouter:
         claude_key = getattr(self.config, "CLAUDE_API_KEY", "")
         claude_model = getattr(self.config, "CLAUDE_MODEL", "claude-3-5-haiku-20241022")
 
-        if classification == "SIMPLE":
-            return "gemini/gemini-2.5-flash"
-        elif classification in ("AGENT_GENERATION", "QA_TESTING") and claude_key:
-            return f"anthropic/{claude_model}"
+        if self.config.VERTEX_ENABLED:
+            if classification == "SIMPLE":
+                return "vertex_ai/gemini-2.5-flash"
+            elif classification in ("AGENT_GENERATION", "QA_TESTING") and claude_key:
+                return f"anthropic/{claude_model}"
+            else:
+                model = self.config.GEMINI_MODEL
+                if not model.startswith("vertex_ai/"):
+                    if "/" in model:
+                        model = "vertex_ai/" + model.split("/")[-1]
+                    else:
+                        model = "vertex_ai/" + model
+                return model
         else:
-            return self.config.GEMINI_MODEL
+            if classification == "SIMPLE":
+                return "gemini/gemini-2.5-flash"
+            elif classification in ("AGENT_GENERATION", "QA_TESTING") and claude_key:
+                return f"anthropic/{claude_model}"
+            else:
+                return self.config.GEMINI_MODEL
 
     def _local_fallback(self, prompt: str, matched_skills: List[str]) -> TriageResult:
         """Keyword-only classification used when DeepSeek is unavailable."""

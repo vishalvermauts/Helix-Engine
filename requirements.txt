@@ -39,3 +39,7 @@ itsdangerous
 
 # Optional: Claude routing (Phase 6)
 # anthropic
+
+# Google Cloud Auth
+google-auth
+
