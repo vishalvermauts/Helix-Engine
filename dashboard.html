@@ -13,10 +13,10 @@
     <style>
         body {
             font-family: 'JetBrains Mono', monospace;
-            background-color: #0d0614; /* Deep Space Amethyst black base */
+            background-color: #070b10; /* Carbon Obsidian black base */
         }
-        .glow-violet {
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+        .glow-cyan {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
         }
         .glow-amber {
             box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
@@ -25,18 +25,18 @@
             box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
         }
         .frosted {
-            background: rgba(22, 12, 35, 0.7);
+            background: rgba(10, 17, 26, 0.7);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(6, 182, 212, 0.15);
         }
         .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(22, 12, 35, 0.3);
+            background: rgba(10, 17, 26, 0.3);
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(139, 92, 246, 0.3);
+            background: rgba(6, 182, 212, 0.3);
             border-radius: 3px;
         }
     </style>
@@ -44,23 +44,23 @@
 <body class="text-gray-100 min-h-screen flex flex-col p-4 md:p-6 overflow-x-hidden">
 
     <!-- SECTION 1: GLOBAL CONTROL HEADER BANNER -->
-    <header class="frosted rounded-xl p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4 glow-violet">
+    <header class="frosted rounded-xl p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4 glow-cyan">
         <div class="flex items-center gap-3">
-            <div class="w-3 h-3 rounded-full bg-violet-500 animate-pulse glow-violet"></div>
-            <h1 class="text-xl font-bold tracking-wider text-violet-400">HELIX ENGINE NODE v2.1</h1>
+            <div class="w-3 h-3 rounded-full bg-cyan-500 animate-pulse glow-cyan"></div>
+            <h1 class="text-xl font-bold tracking-wider text-cyan-400">HELIX ENGINE NODE v2.1</h1>
         </div>
         
         <div class="flex items-center gap-6">
             <!-- Dual-Token Ledger -->
-            <div class="flex items-center gap-4 text-xs bg-black/40 rounded-lg p-2 px-3 border border-violet-900/50">
+            <div class="flex items-center gap-4 text-xs bg-black/40 rounded-lg p-2 px-3 border border-cyan-900/50">
                 <div class="flex items-center gap-2">
-                    <span class="text-violet-500 font-bold">REASONING:</span>
-                    <span id="stat-high-tier" class="text-violet-300">0</span>
+                    <span class="text-cyan-500 font-bold">REASONING:</span>
+                    <span id="stat-high-tier" class="text-cyan-300">0</span>
                 </div>
-                <div class="w-px h-4 bg-violet-900"></div>
+                <div class="w-px h-4 bg-cyan-900"></div>
                 <div class="flex items-center gap-2">
-                    <span class="text-cyan-500 font-bold">SUB-AGENTS:</span>
-                    <span id="stat-sub-agents" class="text-cyan-300">0</span>
+                    <span class="text-teal-500 font-bold">SUB-AGENTS:</span>
+                    <span id="stat-sub-agents" class="text-teal-300">0</span>
                 </div>
             </div>
 
@@ -81,29 +81,29 @@
         <!-- SECTION 2: THE INPUT CARD BLOCK (Left Panel, 3/12) -->
         <section class="lg:col-span-3 flex flex-col gap-6">
             <div class="frosted rounded-xl p-5 flex flex-col gap-4 flex-grow relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-24 h-24 bg-violet-500/5 rounded-full blur-2xl"></div>
+                <div class="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-2xl"></div>
                 
-                <div class="flex items-center justify-between border-b border-violet-900/30 pb-3">
-                    <span class="text-sm font-bold text-violet-400 flex items-center gap-2">
+                <div class="flex items-center justify-between border-b border-cyan-900/30 pb-3">
+                    <span class="text-sm font-bold text-cyan-400 flex items-center gap-2">
                         <i data-lucide="terminal" class="w-4 h-4"></i> class InputPayloadParser
                     </span>
-                    <span class="text-[10px] bg-violet-950 text-violet-300 px-2 py-0.5 rounded border border-violet-800/50">Active</span>
+                    <span class="text-[10px] bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800/50">Active</span>
                 </div>
 
                 <!-- Attributes -->
                 <div class="flex flex-col gap-2">
                     <span class="text-xs text-gray-500 font-bold tracking-wider">// Attributes</span>
-                    <div class="bg-black/30 rounded-lg p-3 border border-violet-950 text-[11px] flex flex-col gap-2 leading-relaxed">
-                        <div><span class="text-violet-400">raw_prompt</span>: String = <span id="val-prompt" class="text-gray-300">"Build responsive portfolio and workspace tracking..."</span></div>
-                        <div><span class="text-violet-400">target_directory</span>: Path = <span class="text-gray-300">"/workspaces/production_vault"</span></div>
-                        <div><span class="text-violet-400">offload_routing_tier</span>: Enum = <span class="text-gray-300">DualModelTriage</span></div>
+                    <div class="bg-black/30 rounded-lg p-3 border border-cyan-950 text-[11px] flex flex-col gap-2 leading-relaxed">
+                        <div><span class="text-cyan-400">raw_prompt</span>: String = <span id="val-prompt" class="text-gray-300">"Build responsive portfolio and workspace tracking..."</span></div>
+                        <div><span class="text-cyan-400">target_directory</span>: Path = <span class="text-gray-300">"/workspaces/production_vault"</span></div>
+                        <div><span class="text-cyan-400">offload_routing_tier</span>: Enum = <span class="text-gray-300">DualModelTriage</span></div>
                     </div>
                 </div>
 
                 <!-- Methods -->
                 <div class="flex flex-col gap-2">
                     <span class="text-xs text-gray-500 font-bold tracking-wider">// Methods</span>
-                    <div class="bg-black/30 rounded-lg p-3 border border-violet-950 text-[11px] flex flex-col gap-3">
+                    <div class="bg-black/30 rounded-lg p-3 border border-cyan-950 text-[11px] flex flex-col gap-3">
                         <div class="flex justify-between items-center">
                             <span>+ validate_parameters()</span>
                             <span id="method-validate" class="text-gray-500">Idle</span>
@@ -116,14 +116,14 @@
                 </div>
 
                 <!-- Action Button -->
-                <button id="btn-trigger" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white font-bold py-3 rounded-lg transition-all transform hover:scale-[1.02] shadow-lg shadow-violet-950/50 flex items-center justify-center gap-2">
+                <button id="btn-trigger" class="w-full bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white font-bold py-3 rounded-lg transition-all transform hover:scale-[1.02] shadow-lg shadow-cyan-950/50 flex items-center justify-center gap-2">
                     <i data-lucide="play" class="w-4 h-4"></i> TRIGGER LIVE MONITOR RUN
                 </button>
 
                 <!-- Log Stream Module -->
                 <div class="flex flex-col gap-2 flex-grow">
                     <span class="text-xs text-gray-500 font-bold tracking-wider">// Live Process Monitor Log</span>
-                    <div id="terminal-log" class="bg-black/60 rounded-lg p-3 border border-violet-950/60 font-mono text-[10px] text-violet-300/80 h-64 overflow-y-auto custom-scrollbar leading-relaxed">
+                    <div id="terminal-log" class="bg-black/60 rounded-lg p-3 border border-cyan-950/60 font-mono text-[10px] text-cyan-300/80 h-64 overflow-y-auto custom-scrollbar leading-relaxed">
                         [system] Standing by for live deployment webhook triggers...
                     </div>
                 </div>
@@ -133,14 +133,14 @@
         <!-- SECTION 3: THE SWARM PROCESSING CORE MATRIX (Center Panel, 5/12) -->
         <section class="lg:col-span-5 flex flex-col gap-6">
             <div class="frosted rounded-xl p-5 flex flex-col gap-5 flex-grow relative">
-                <span class="text-sm font-bold text-violet-400 flex items-center gap-2 border-b border-violet-900/30 pb-3">
+                <span class="text-sm font-bold text-cyan-400 flex items-center gap-2 border-b border-cyan-900/30 pb-3">
                     <i data-lucide="cpu" class="w-4 h-4"></i> Swarm Core Processing Matrix
                 </span>
 
                 <!-- 1. Master Control Card -->
-                <div id="card-orchestrator" class="bg-black/30 border border-violet-900/20 rounded-lg p-4 transition-all duration-300 relative">
+                <div id="card-orchestrator" class="bg-black/30 border border-cyan-900/20 rounded-lg p-4 transition-all duration-300 relative">
                     <div class="flex justify-between items-start mb-2">
-                        <span class="text-xs font-bold text-violet-300 flex items-center gap-1.5">
+                        <span class="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
                             <i data-lucide="workflow" class="w-3.5 h-3.5"></i> class OrchestratorAgent
                         </span>
                         <span id="badge-orchestrator" class="text-[10px] text-gray-500 bg-gray-950 px-2 py-0.5 rounded border border-gray-900">IDLE</span>
@@ -154,10 +154,10 @@
                 <!-- 2. Parallel Sub-Worker Card Deck -->
                 <div class="grid grid-cols-2 gap-4">
                     <!-- Node A: BackendCoder -->
-                    <div id="card-coder" class="bg-black/30 border border-violet-900/20 rounded-lg p-4 transition-all duration-300 flex flex-col justify-between h-32">
+                    <div id="card-coder" class="bg-black/30 border border-cyan-900/20 rounded-lg p-4 transition-all duration-300 flex flex-col justify-between h-32">
                         <div>
                             <div class="flex justify-between items-start mb-2">
-                                <span class="text-[11px] font-bold text-violet-300 flex items-center gap-1">
+                                <span class="text-[11px] font-bold text-cyan-300 flex items-center gap-1">
                                     <i data-lucide="code" class="w-3 h-3"></i> BackendCoder
                                 </span>
                             </div>
@@ -168,17 +168,17 @@
                                 <span>Progress</span>
                                 <span id="txt-coder-progress">0%</span>
                             </div>
-                            <div class="w-full bg-violet-950/50 rounded-full h-1.5 overflow-hidden">
-                                <div id="bar-coder-progress" class="bg-violet-500 h-1.5 transition-all duration-300" style="width: 0%"></div>
+                            <div class="w-full bg-cyan-950/50 rounded-full h-1.5 overflow-hidden">
+                                <div id="bar-coder-progress" class="bg-cyan-500 h-1.5 transition-all duration-300" style="width: 0%"></div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Node B: AssetLinker -->
-                    <div id="card-linker" class="bg-black/30 border border-violet-900/20 rounded-lg p-4 transition-all duration-300 flex flex-col justify-between h-32">
+                    <div id="card-linker" class="bg-black/30 border border-cyan-900/20 rounded-lg p-4 transition-all duration-300 flex flex-col justify-between h-32">
                         <div>
                             <div class="flex justify-between items-start mb-2">
-                                <span class="text-[11px] font-bold text-violet-300 flex items-center gap-1">
+                                <span class="text-[11px] font-bold text-cyan-300 flex items-center gap-1">
                                     <i data-lucide="link" class="w-3 h-3"></i> AssetLinker
                                 </span>
                             </div>
@@ -189,17 +189,17 @@
                                 <span>Progress</span>
                                 <span id="txt-linker-progress">0%</span>
                             </div>
-                            <div class="w-full bg-violet-950/50 rounded-full h-1.5 overflow-hidden">
-                                <div id="bar-linker-progress" class="bg-violet-500 h-1.5 transition-all duration-300" style="width: 0%"></div>
+                            <div class="w-full bg-cyan-950/50 rounded-full h-1.5 overflow-hidden">
+                                <div id="bar-linker-progress" class="bg-cyan-500 h-1.5 transition-all duration-300" style="width: 0%"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 3. Validation Guardian Card -->
-                <div id="card-critic" class="bg-black/30 border border-violet-900/20 rounded-lg p-4 transition-all duration-300 mt-auto">
+                <div id="card-critic" class="bg-black/30 border border-cyan-900/20 rounded-lg p-4 transition-all duration-300 mt-auto">
                     <div class="flex justify-between items-start mb-3">
-                        <span class="text-xs font-bold text-violet-300 flex items-center gap-1.5">
+                        <span class="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
                             <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> class CriticReviewerAgent
                         </span>
                         <span id="badge-critic" class="text-[10px] text-gray-500 bg-gray-950 px-2 py-0.5 rounded border border-gray-900">IDLE</span>
@@ -221,13 +221,13 @@
         <!-- SECTION 4: THE TARGET KANBAN WORKSPACE VIEW (Right Panel, 4/12) -->
         <section class="lg:col-span-4 flex flex-col gap-6">
             <div class="frosted rounded-xl p-5 flex flex-col gap-4 flex-grow">
-                <span class="text-sm font-bold text-violet-400 flex items-center gap-2 border-b border-violet-900/30 pb-3">
+                <span class="text-sm font-bold text-cyan-400 flex items-center gap-2 border-b border-cyan-900/30 pb-3">
                     <i data-lucide="kanban" class="w-4 h-4"></i> Target Kanban Workspace View
                 </span>
 
                 <div class="grid grid-cols-2 gap-4 flex-grow h-[500px]">
                     <!-- Column 1: Blueprint -->
-                    <div class="bg-black/20 rounded-lg p-3 border border-violet-950/40 flex flex-col gap-2.5">
+                    <div class="bg-black/20 rounded-lg p-3 border border-cyan-950/40 flex flex-col gap-2.5">
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">[1. Blueprint]</span>
                         <div id="col-blueprint" class="flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-1">
                             <div class="text-[9px] text-gray-500 text-center py-4">No blueprint loaded</div>
@@ -235,7 +235,7 @@
                     </div>
 
                     <!-- Column 2: Compile -->
-                    <div class="bg-black/20 rounded-lg p-3 border border-violet-950/40 flex flex-col gap-2.5">
+                    <div class="bg-black/20 rounded-lg p-3 border border-cyan-950/40 flex flex-col gap-2.5">
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">[2. Compile]</span>
                         <div id="col-compile" class="flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-1">
                             <div class="text-[9px] text-gray-500 text-center py-4">No files compiled</div>
@@ -243,7 +243,7 @@
                     </div>
 
                     <!-- Column 3: Validate -->
-                    <div class="bg-black/20 rounded-lg p-3 border border-violet-950/40 flex flex-col gap-2.5">
+                    <div class="bg-black/20 rounded-lg p-3 border border-cyan-950/40 flex flex-col gap-2.5">
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">[3. Validate]</span>
                         <div id="col-validate" class="flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-1">
                             <div class="text-[9px] text-gray-500 text-center py-4">No logs validated</div>
@@ -251,7 +251,7 @@
                     </div>
 
                     <!-- Column 4: Vault Outlet -->
-                    <div class="bg-black/20 rounded-lg p-3 border border-violet-950/40 flex flex-col gap-2.5">
+                    <div class="bg-black/20 rounded-lg p-3 border border-cyan-950/40 flex flex-col gap-2.5">
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">[4. Vault Outlet]</span>
                         <div id="col-outlet" class="flex flex-col gap-2 flex-grow overflow-hidden">
                             <!-- Workspace Normal View -->
@@ -260,12 +260,12 @@
                                 <span class="text-[10px] text-gray-500">All links, buttons, and assets fully verified.</span>
                             </div>
                             
-                            <!-- Forensics Diagnostic Matrix (Hidden by default) -->
+                            <!-- Forensics Diagnostic Matrix -->
                             <div id="view-fault" class="hidden flex flex-col gap-2 h-full text-left bg-amber-950/10 border border-amber-950/60 p-3 rounded-lg overflow-y-auto custom-scrollbar text-[10px] leading-relaxed">
                                 <div class="text-amber-500 font-bold border-b border-amber-950 pb-1.5 mb-1.5 flex items-center gap-1">
                                     <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> FORENSICS MATRIX
                                 </div>
-                                <div class="text-amber-400 font-semibold mb-1">Drift Details:</div>
+                                <div class="text-amber-400 font-semibold mb-1">Drift Drift:</div>
                                 <div class="text-gray-300 font-mono text-[9px]">Aider nested folder to /workspace/workspace/ breaking relative absolute links</div>
                                 <div class="text-gray-300 font-mono text-[9px] mt-2">Remediation: Reset static mount to config.WORKSPACE_DIR directly.</div>
                             </div>
@@ -279,7 +279,7 @@
 
     <!-- FOOTER HISTORY -->
     <footer class="frosted rounded-xl p-4 mt-6">
-        <span class="text-xs font-bold text-violet-400 flex items-center gap-2 border-b border-violet-900/30 pb-2 mb-3">
+        <span class="text-xs font-bold text-cyan-400 flex items-center gap-2 border-b border-cyan-900/30 pb-2 mb-3">
             <i data-lucide="history" class="w-4 h-4"></i> Run History Matrix
         </span>
         <div id="history-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-[10px] text-gray-400">
@@ -327,7 +327,7 @@
         faultToggle.addEventListener('change', (e) => {
             isFaultSimulated = e.target.checked;
             if (isFaultSimulated) {
-                header.classList.remove('glow-violet');
+                header.classList.remove('glow-cyan');
                 header.classList.add('glow-amber');
                 header.style.borderColor = 'rgba(245, 158, 11, 0.4)';
                 
@@ -340,8 +340,8 @@
                 logMessage("[fault-trigger] Workspace fault path redirection simulation is active!");
             } else {
                 header.classList.remove('glow-amber');
-                header.classList.add('glow-violet');
-                header.style.borderColor = 'rgba(139, 92, 246, 0.15)';
+                header.classList.add('glow-cyan');
+                header.style.borderColor = 'rgba(6, 182, 212, 0.15)';
                 
                 coderCard.classList.remove('border-rose-950', 'bg-rose-950/5');
                 linkerCard.classList.remove('border-rose-950', 'bg-rose-950/5');
@@ -360,19 +360,19 @@
             logMessage("[input] TRIGGER LIVE MONITOR RUN clicked. Initiating cascade...");
             
             // Step 1: Input Validation
-            methodValidate.innerHTML = '<span class="text-violet-400 animate-pulse">Running...</span>';
+            methodValidate.innerHTML = '<span class="text-cyan-400 animate-pulse">Running...</span>';
             await sleep(1500);
             methodValidate.innerHTML = '<span class="text-emerald-400 font-bold">✓ Success</span>';
             
             // Step 2: Triage Classification
-            methodTriage.innerHTML = '<span class="text-violet-400 animate-pulse">Running...</span>';
+            methodTriage.innerHTML = '<span class="text-cyan-400 animate-pulse">Running...</span>';
             await sleep(1500);
             methodTriage.innerHTML = '<span class="text-emerald-400 font-bold">✓ Success</span>';
             
             // Step 3: Orchestrator schedules workers
             orchestratorBadge.innerText = "RUNNING";
-            orchestratorBadge.className = "text-[10px] text-violet-300 bg-violet-950 px-2 py-0.5 rounded border border-violet-800";
-            orchestratorCard.classList.add('border-violet-500');
+            orchestratorBadge.className = "text-[10px] text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800";
+            orchestratorCard.classList.add('border-cyan-500');
             valState.innerText = "RUNNING_SWARM";
             valSwarms.innerText = "2";
             logMessage("[orchestrator] Swarm dispatching. 2 worker nodes spawned.");
@@ -391,24 +391,24 @@
             
             // Step 5: Validation
             criticBadge.innerText = "RUNNING";
-            criticBadge.className = "text-[10px] text-violet-300 bg-violet-950 px-2 py-0.5 rounded border border-violet-800";
-            criticCard.classList.add('border-violet-500');
+            criticBadge.className = "text-[10px] text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800";
+            criticCard.classList.add('border-cyan-500');
             
-            methodPlaywright.innerHTML = '<span class="text-violet-400 animate-pulse">Running...</span>';
+            methodPlaywright.innerHTML = '<span class="text-cyan-400 animate-pulse">Running...</span>';
             await sleep(1500);
             methodPlaywright.innerHTML = '<span class="text-emerald-400 font-bold">✓ Success</span>';
             
-            methodImage.innerHTML = '<span class="text-violet-400 animate-pulse">Running...</span>';
+            methodImage.innerHTML = '<span class="text-cyan-400 animate-pulse">Running...</span>';
             await sleep(1500);
             methodImage.innerHTML = '<span class="text-emerald-400 font-bold">✓ Success</span>';
             
             // Reset layout triggers
             orchestratorBadge.innerText = "IDLE";
             orchestratorBadge.className = "text-[10px] text-gray-500 bg-gray-950 px-2 py-0.5 rounded border border-gray-900";
-            orchestratorCard.classList.remove('border-violet-500');
+            orchestratorCard.classList.remove('border-cyan-500');
             criticBadge.innerText = "IDLE";
             criticBadge.className = "text-[10px] text-gray-500 bg-gray-950 px-2 py-0.5 rounded border border-gray-900";
-            criticCard.classList.remove('border-violet-500');
+            criticCard.classList.remove('border-cyan-500');
             valState.innerText = "IDLE";
             valSwarms.innerText = "0";
             
@@ -433,7 +433,6 @@
                 });
                 const logData = await logRes.json();
                 if (logData.logs) {
-                    // Update log panel with the last 20 log lines
                     const lastLines = logData.logs.slice(-25).join('\n');
                     termLog.innerText = lastLines;
                     termLog.scrollTop = termLog.scrollHeight;
@@ -477,7 +476,6 @@
                 orchestratorCard.classList.add('border-emerald-500');
                 valSwarms.innerText = data.blueprint ? data.blueprint.tasks.length : "0";
                 
-                // Show worker progress
                 let completedCount = data.completed_tasks ? data.completed_tasks.length : 0;
                 let totalCount = data.blueprint ? data.blueprint.tasks.length : 1;
                 let percent = Math.round((completedCount / totalCount) * 100);
@@ -487,7 +485,6 @@
                 linkerProgText.innerText = `${percent}%`;
                 linkerBar.style.width = `${percent}%`;
             } else {
-                // IDLE
                 orchestratorBadge.innerText = "IDLE";
                 orchestratorBadge.className = "text-[10px] text-gray-500 bg-gray-950 px-2 py-0.5 rounded border border-gray-900";
                 orchestratorCard.classList.remove('border-emerald-500', 'border-amber-500');
@@ -503,8 +500,8 @@
             if (data.blueprint) {
                 // 1. Blueprint Column
                 colBlueprint.innerHTML = `
-                    <div class="bg-violet-950/20 border border-violet-900/30 p-2 rounded text-[10px] flex flex-col gap-1.5 shadow-md">
-                        <div class="text-violet-400 font-bold flex items-center gap-1">
+                    <div class="bg-cyan-950/20 border border-cyan-900/30 p-2 rounded text-[10px] flex flex-col gap-1.5 shadow-md">
+                        <div class="text-cyan-400 font-bold flex items-center gap-1">
                             <i data-lucide="file-json" class="w-3.5 h-3.5"></i> blueprint.json
                         </div>
                         <div class="text-gray-400 text-[9px]">Tasks: ${data.blueprint.tasks.length}</div>
@@ -521,7 +518,7 @@
                     } else if (data.failed_tasks.includes(task.task_id)) {
                         statusColor = "text-red-400 border-red-950 bg-red-950/10";
                     } else if (data.running_task === task.task_id) {
-                        statusColor = "text-violet-400 border-violet-950 bg-violet-950/10 animate-pulse";
+                        statusColor = "text-cyan-400 border-cyan-950 bg-cyan-950/10 animate-pulse";
                         spinner = `<i data-lucide="loader" class="w-3 h-3 animate-spin"></i>`;
                     }
                     compileHTML += `
@@ -540,11 +537,11 @@
                 let validateHTML = "";
                 if (data.status === 'running_swarm' && data.running_task) {
                     validateHTML = `
-                        <div class="border border-violet-950/80 bg-violet-950/5 p-2 rounded text-[9px] flex flex-col gap-1 animate-pulse">
-                            <div class="font-bold text-violet-400 flex items-center gap-1">
+                        <div class="border border-cyan-950/80 bg-cyan-950/5 p-2 rounded text-[9px] flex flex-col gap-1 animate-pulse">
+                            <div class="font-bold text-cyan-400 flex items-center gap-1">
                                 <i data-lucide="flask-conical" class="w-3.5 h-3.5 animate-bounce"></i> Testing Run...
                             </div>
-                            <div class="text-gray-500">Playwright testing and syntax checks active.</div>
+                            <div class="text-gray-500">Playwright testing and checks active.</div>
                         </div>
                     `;
                 } else if (data.completed_tasks.length > 0 && data.status === 'idle') {
@@ -589,7 +586,7 @@
                 let historyHTML = "";
                 data.history.forEach((run, index) => {
                     let statusColor = run.status === 'success' ? 'text-emerald-400 border-emerald-950 bg-emerald-950/10' : 'text-red-400 border-red-950 bg-red-950/10';
-                    let linkHTML = run.output_url ? `<a href="${run.output_url}" target="_blank" class="text-violet-400 hover:underline">Link</a>` : 'N/A';
+                    let linkHTML = run.output_url ? `<a href="${run.output_url}" target="_blank" class="text-cyan-400 hover:underline">Link</a>` : 'N/A';
                     historyHTML += `
                         <div class="border ${statusColor} rounded-lg p-3 flex justify-between items-center shadow-md">
                             <div class="flex flex-col gap-1 pr-4">
