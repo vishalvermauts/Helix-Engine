@@ -1,10 +1,10 @@
-# 🧬 AirCode Helix Engine
+# 🧬 Helix Engine
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python Version](https://img.shields.io/badge/python-3.10%2B-brightgreen.svg)
 ![Architecture](https://img.shields.io/badge/Architecture-Three--Tier%20Defensive-orange)
 
-The **AirCode Helix Engine** is a state-of-the-art, autonomous agent generation and orchestration backend. It leverages a rigorous **Three-Tier Defensive Architecture** to write, execute, and self-heal Python and Node.js agents dynamically on the fly based on webhook payloads.
+The **Helix Engine** is a state-of-the-art, autonomous agent generation and orchestration backend. It leverages a rigorous **Three-Tier Defensive Architecture** to write, execute, and self-heal Python and Node.js agents dynamically on the fly based on webhook payloads.
 
 ---
 
@@ -37,7 +37,7 @@ If an agent compiles with a syntax error, the `Swarm Orchestrator` catches the t
 ## 📂 Repository Structure
 
 ```text
-AirCode/
+HelixEngine/
 ├── agents/                     # Core system agents
 │   ├── orchestrator.py         # Tier 3: Executes agents & handles self-healing
 │   ├── planner_agent.py        # Tier 2: Staff Linter blueprint generation
@@ -72,7 +72,7 @@ We provide a magical, 1-click interactive setup script that automatically handle
 
 ## 🔬 Connecting to the Helix Brain Diagnostic Lab
 
-The AirCode Helix Engine is designed to run completely headlessly in the background. To interface with it, you will need the **Helix Brain Diagnostic Lab** frontend.
+The Helix Engine is designed to run completely headlessly in the background. To interface with it, you will need the **Helix Brain Diagnostic Lab** frontend.
 
 1. **Clone the Diagnostic Lab Repository:**
    *(The dashboard is maintained in a separate repository)*
