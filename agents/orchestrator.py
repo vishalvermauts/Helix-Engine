@@ -219,6 +219,7 @@ class SwarmOrchestrator:
                             "--model", worker_model,
                             "--no-show-model-warnings",
                             "--yes-always",
+                            "--no-auto-lint",
                             "--no-suggest-shell-commands",
                             "--read", str(worker_dir / "core_memory" / "contract.md"),
                         ]

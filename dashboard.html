@@ -87,12 +87,22 @@
                     <span class="text-xs bg-cyan-950/70 text-cyan-300 px-3 py-1 rounded-full border border-cyan-800/40 font-semibold shadow-inner">Active</span>
                 </div>
 
-                <!-- Triage Category Badge Card -->
-                <div class="bg-black/40 border border-cyan-950/50 rounded-xl p-4 flex flex-col gap-2">
-                    <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Triage Classification</span>
-                    <div id="triage-badge-container" class="flex items-center gap-2.5">
-                        <div class="w-2.5 h-2.5 rounded-full bg-gray-600" id="triage-dot"></div>
-                        <span id="triage-text" class="text-sm font-extrabold text-gray-300 uppercase tracking-widest">NO RUN ACTIVE</span>
+                <!-- Triage & Routing Badge Card -->
+                <div class="bg-black/40 border border-cyan-950/50 rounded-xl p-4 flex flex-col gap-3.5">
+                    <div class="flex flex-col gap-1.5">
+                        <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Triage Classification</span>
+                        <div id="triage-badge-container" class="flex items-center gap-2.5">
+                            <div class="w-2.5 h-2.5 rounded-full bg-gray-600" id="triage-dot"></div>
+                            <span id="triage-text" class="text-sm font-extrabold text-gray-300 uppercase tracking-widest">NO RUN ACTIVE</span>
+                        </div>
+                    </div>
+                    <div class="w-full h-px bg-cyan-950/40"></div>
+                    <div class="flex flex-col gap-1.5">
+                        <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Routed AI Mode</span>
+                        <div class="flex items-center gap-2.5">
+                            <i data-lucide="cpu" class="w-4 h-4 text-gray-500" id="model-icon"></i>
+                            <span id="model-text" class="text-sm font-extrabold text-gray-500 uppercase tracking-wider mono-font">STANDBY</span>
+                        </div>
                     </div>
                 </div>
 
@@ -301,6 +311,8 @@
         // Triage Badge Elements
         const triageDot = document.getElementById('triage-dot');
         const triageText = document.getElementById('triage-text');
+        const modelText = document.getElementById('model-text');
+        const modelIcon = document.getElementById('model-icon');
 
         let ws = null;
         let pollingInterval = null;
@@ -336,6 +348,32 @@
                 triageDot.className = "w-2.5 h-2.5 rounded-full bg-cyan-400 glow-cyan animate-pulse";
                 triageText.innerText = cleanClass;
                 triageText.className = "text-sm font-extrabold text-cyan-400 uppercase tracking-widest";
+            }
+        }
+
+        function updateModelUI(model) {
+            if (!model) {
+                modelText.innerText = "STANDBY";
+                modelText.className = "text-sm font-extrabold text-gray-500 uppercase tracking-wider mono-font";
+                modelIcon.className = "w-4 h-4 text-gray-500";
+                return;
+            }
+
+            const modelLower = model.toLowerCase();
+            modelText.innerText = model.toUpperCase();
+            
+            if (modelLower.includes("deepseek")) {
+                modelText.className = "text-sm font-extrabold text-teal-400 uppercase tracking-wider mono-font";
+                modelIcon.className = "w-4 h-4 text-teal-400 glow-teal animate-pulse";
+            } else if (modelLower.includes("gemini")) {
+                modelText.className = "text-sm font-extrabold text-cyan-400 uppercase tracking-wider mono-font";
+                modelIcon.className = "w-4 h-4 text-cyan-400 glow-cyan animate-pulse";
+            } else if (modelLower.includes("claude") || modelLower.includes("anthropic")) {
+                modelText.className = "text-sm font-extrabold text-purple-400 uppercase tracking-wider mono-font";
+                modelIcon.className = "w-4 h-4 text-purple-400 glow-purple animate-pulse";
+            } else {
+                modelText.className = "text-sm font-extrabold text-cyan-300 uppercase tracking-wider mono-font";
+                modelIcon.className = "w-4 h-4 text-cyan-300 animate-pulse";
             }
         }
 
@@ -441,6 +479,7 @@
 
             // Update Triage Badge
             updateTriageUI(data.classification);
+            updateModelUI(data.selected_model);
 
             // Update Orchestrator and worker cards
             if (data.status === 'planning') {
@@ -608,13 +647,43 @@
                 data.history.forEach((run, index) => {
                     let statusColor = run.status === 'success' ? 'text-emerald-400 border-emerald-950 bg-emerald-950/15' : 'text-red-400 border-red-950 bg-red-950/15';
                     let linkHTML = run.output_url ? `<a href="${run.output_url}" target="_blank" class="text-cyan-400 hover:underline font-bold">Link</a>` : 'N/A';
+                    
+                    // Badges for classification and model if present
+                    let triageBadge = "";
+                    if (run.classification) {
+                        let badgeColor = "bg-gray-800 text-gray-400 border-gray-700";
+                        if (run.classification.toUpperCase() === "SIMPLE") badgeColor = "bg-emerald-950/40 text-emerald-400 border-emerald-900/35";
+                        else if (run.classification.toUpperCase() === "COMPLEX") badgeColor = "bg-cyan-950/40 text-cyan-400 border-cyan-900/35";
+                        else if (run.classification.toUpperCase() === "AGENT_GENERATION") badgeColor = "bg-purple-950/40 text-purple-400 border-purple-900/35";
+                        else if (run.classification.toUpperCase() === "QA_TESTING") badgeColor = "bg-amber-950/40 text-amber-400 border-amber-900/35";
+                        
+                        triageBadge = `<span class="text-[9px] px-1.5 py-0.5 rounded border ${badgeColor} font-bold uppercase tracking-wider">${run.classification}</span>`;
+                    }
+                    
+                    let modelBadge = "";
+                    if (run.selected_model) {
+                        let modelLower = run.selected_model.toLowerCase();
+                        let badgeColor = "bg-cyan-950/20 text-cyan-300 border-cyan-900/30";
+                        if (modelLower.includes("deepseek")) badgeColor = "bg-teal-950/40 text-teal-400 border-teal-900/35";
+                        else if (modelLower.includes("gemini")) badgeColor = "bg-cyan-950/40 text-cyan-400 border-cyan-900/35";
+                        else if (modelLower.includes("claude") || modelLower.includes("anthropic")) badgeColor = "bg-purple-950/40 text-purple-400 border-purple-900/35";
+                        
+                        // Extract short name of the model if too long
+                        let displayModel = run.selected_model.split("/").pop().toUpperCase();
+                        modelBadge = `<span class="text-[9px] px-1.5 py-0.5 rounded border ${badgeColor} font-mono font-medium">${displayModel}</span>`;
+                    }
+
                     historyHTML += `
                         <div class="border ${statusColor} rounded-xl p-4 flex justify-between items-center shadow-md">
-                            <div class="flex flex-col gap-1 pr-4">
+                            <div class="flex flex-col gap-1.5 pr-4 flex-grow min-w-0">
                                 <span class="font-extrabold text-gray-300">Run #${index + 1}</span>
-                                <span class="text-[11px] text-gray-500 truncate max-w-[200px] font-medium">${run.prompt}</span>
+                                <span class="text-[11px] text-gray-400 truncate font-medium block" title="${run.prompt}">${run.prompt}</span>
+                                <div class="flex flex-wrap gap-1.5 mt-0.5">
+                                    ${triageBadge}
+                                    ${modelBadge}
+                                </div>
                             </div>
-                            <div class="flex flex-col items-end gap-1 font-mono text-[10px]">
+                            <div class="flex flex-col items-end gap-1.5 font-mono text-[10px] shrink-0">
                                 <div>Time: ${run.duration_seconds}s</div>
                                 <div>Site: ${linkHTML}</div>
                             </div>

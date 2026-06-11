@@ -189,6 +189,11 @@ class TriageRouter:
             result = TriageResult(classification="SIMPLE", confidence=1.0, model=self._select_model("SIMPLE"), estimated_cost="low", matched_skills=matched_skills)
             _triage_stats.record(result.classification, result.estimated_cost)
             return result
+        if "[FORCE_AGENT]" in prompt or "[FORCE_AGENT_GENERATION]" in prompt:
+            logger.info("Manual override detected: [FORCE_AGENT_GENERATION]")
+            result = TriageResult(classification="AGENT_GENERATION", confidence=1.0, model=self._select_model("AGENT_GENERATION"), estimated_cost="high", matched_skills=matched_skills)
+            _triage_stats.record(result.classification, result.estimated_cost)
+            return result
         if "[FORCE_COMPLEX]" in prompt:
             logger.info("Manual override detected: [FORCE_COMPLEX]")
             result = TriageResult(classification="COMPLEX", confidence=1.0, model=self._select_model("COMPLEX"), estimated_cost="high", matched_skills=matched_skills)
@@ -212,7 +217,7 @@ class TriageRouter:
                 "'SIMPLE' if the user request is a minor formatting, typo, or comment change. "
                 "'AGENT_GENERATION' if the user wants to create a python agent, bot, or automated script. "
                 "'QA_TESTING' if the user wants to write unit tests, QA suites, or CI pipelines. "
-                "'COMPLEX' if it involves architecture, scaffolding, logic changes, or refactoring general applications."
+                "'COMPLEX' if it involves building web UIs, frontends, HTML/CSS/JS pages, dashboards, or complex app scaffolding, architecture, and logic changes."
             )
             payload = {
                 "model": "deepseek-chat",

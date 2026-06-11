@@ -32,7 +32,8 @@ execution_state = {
     "failed_tasks": [],
     "running_task": None,
     "history": [],
-    "classification": None
+    "classification": None,
+    "selected_model": None
 }
 
 active_connections = set()
@@ -449,6 +450,7 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
         execution_state["failed_tasks"] = []
         execution_state["running_task"] = None
         execution_state["classification"] = classification
+        execution_state["selected_model"] = selected_model
         await broadcast_state_update()
         
         try:
@@ -508,7 +510,9 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
                 "start_time": execution_state["start_time"],
                 "duration_seconds": round(duration_sec, 1),
                 "status": "success" if success else "failed",
-                "output_url": output_url
+                "output_url": output_url,
+                "classification": classification,
+                "selected_model": selected_model
             }
             execution_state["history"].append(run_history_item)
             await broadcast_state_update()
@@ -532,7 +536,9 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
                 "start_time": execution_state["start_time"],
                 "duration_seconds": round(duration_sec, 1),
                 "status": "failed",
-                "output_url": None
+                "output_url": None,
+                "classification": classification,
+                "selected_model": selected_model
             })
             await broadcast_state_update()
         finally:
@@ -547,4 +553,4 @@ async def execute_aider_compilation(chat_id: int, prompt: str, user_id: int, sel
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=config.PORT, reload=False, log_config=None)
+    uvicorn.run(app, host="0.0.0.0", port=config.PORT, reload=False, log_config=None)

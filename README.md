@@ -89,4 +89,15 @@ The AirCode Helix Engine is designed to run completely headlessly in the backgro
 
 ---
 
+## 🔀 Connecting to HelixFlow Gateway (New)
+
+For enterprise-grade API multiplexing, failover, and ultra-low-latency traffic routing, the Helix Engine is designed to pair perfectly with the **HelixFlow Gateway**. 
+
+Instead of connecting the Helix Engine directly to OpenAI or DeepSeek, you can route all internal LLM traffic from the Engine through the Gateway. The Gateway will automatically manage rate limits, PII scrubbing, and cost optimization.
+
+1. **Deploy HelixFlow:** [https://github.com/vishalvermauts/HelixFlow](https://github.com/vishalvermauts/HelixFlow)
+2. **Configure Helix Engine:** Update your `.env` to point the base URL to your HelixFlow instance (e.g., `http://localhost:8000/v1`).
+
+---
+
 *This codebase was meticulously crafted and continuously refined using advanced agentic pair-programming.*

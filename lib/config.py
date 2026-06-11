@@ -18,9 +18,9 @@ class HelixConfig:
     NGROK_AUTHTOKEN: str = field(default_factory=lambda: os.getenv("NGROK_AUTHTOKEN", ""))
 
     # Core Settings
-    GEMINI_API_BASE: str = field(default="https://generativelanguage.googleapis.com/v1beta")
+    GEMINI_API_BASE: str = field(default_factory=lambda: os.getenv("GEMINI_API_BASE", "https://generativelanguage.googleapis.com/v1beta"))
     GEMINI_MODEL: str = field(default_factory=lambda: os.getenv("GEMINI_MODEL", "gemini/gemini-2.5-pro"))
-    DEEPSEEK_API_BASE: str = field(default="https://api.deepseek.com/v1")
+    DEEPSEEK_API_BASE: str = field(default_factory=lambda: os.getenv("DEEPSEEK_API_BASE", "https://api.deepseek.com/v1"))
     WORKSPACE_DIR: str = field(default_factory=lambda: os.getenv("WORKSPACE_DIR", "/workspaces/AirCode"))
     AIDER_BIN: str = field(default_factory=lambda: os.getenv("AIDER_BIN", "/home/vboxuser/.local/bin/aider"))
     
