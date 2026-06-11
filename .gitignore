@@ -5,3 +5,5 @@ logs/
 .aider*
 .DS_Store
 release.tar.gz
+*service_account.json
+

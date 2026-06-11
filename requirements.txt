@@ -1,8 +1,45 @@
-aider-chat
+# Core web framework
 fastapi
-uvicorn
-python-telegram-bot
+uvicorn[standard]
+
+# HTTP client (async)
 httpx
+
+# Telegram bot
+python-telegram-bot
+
+# Configuration & environment
+python-dotenv
+pydantic>=2.0
+
+# LLM tooling
+aider-chat
+
+# Logging
+structlog
+
+# Tunneling
+pyngrok
+
+# Syntax analysis
+tree-sitter
+tree-sitter-python
+tree-sitter-javascript
+tree-sitter-language-pack
+
+# E2E testing
+playwright
+
+# WebSocket proxying
+websockets
+
+# Auth (legacy OAuth2 support)
 authlib
 itsdangerous
-pyngrok
+
+# Optional: Claude routing (Phase 6)
+# anthropic
+
+# Google Cloud Auth
+google-auth
+

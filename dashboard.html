@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helix Engine - Observability Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts JetBrains Mono & Outfit (for premium layout) -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #05080c; /* Deep Carbon Obsidian black base */
+        }
+        .mono-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .glow-cyan {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.25);
+        }
+        .glow-emerald {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+        .glow-purple {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+        }
+        .frosted {
+            background: rgba(10, 18, 30, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(6, 182, 212, 0.15);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(10, 18, 30, 0.3);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(6, 182, 212, 0.25);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(6, 182, 212, 0.45);
+        }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen flex flex-col p-4 md:p-6 overflow-x-hidden selection:bg-cyan-500 selection:text-black">
+
+    <!-- SECTION 1: GLOBAL CONTROL HEADER BANNER -->
+    <header class="frosted rounded-2xl p-5 mb-6 flex flex-col md:flex-row justify-between items-center gap-4 glow-cyan border-cyan-500/25">
+        <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded-full bg-cyan-400 animate-pulse glow-cyan"></div>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-300">HELIX ENGINE NODE v2.1</h1>
+        </div>
+        
+        <div class="flex items-center gap-6">
+            <!-- Dual-Token Ledger -->
+            <div class="flex items-center gap-6 text-sm bg-black/55 rounded-xl p-3 px-5 border border-cyan-900/50 shadow-inner">
+                <div class="flex items-center gap-2">
+                    <span class="text-cyan-400 font-extrabold tracking-wider text-xs">REASONING:</span>
+                    <span id="stat-high-tier" class="text-cyan-300 font-bold text-base">0</span>
+                </div>
+                <div class="w-px h-6 bg-cyan-900/50"></div>
+                <div class="flex items-center gap-2">
+                    <span class="text-teal-400 font-extrabold tracking-wider text-xs">UTILITY RUNS:</span>
+                    <span id="stat-sub-agents" class="text-teal-300 font-bold text-base">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN GRID CONTAINER -->
+    <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
+
+        <!-- SECTION 2: THE INPUT CARD BLOCK (Left Panel, 4/12) -->
+        <section class="lg:col-span-4 flex flex-col gap-6">
+            <div class="frosted rounded-2xl p-6 flex flex-col gap-5 flex-grow relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-3xl"></div>
+                
+                <div class="flex items-center justify-between border-b border-cyan-950 pb-4">
+                    <span class="text-lg font-bold text-cyan-400 flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-cyan-400"></i> 💡 ACTIVE BUILD TASK
+                    </span>
+                    <span class="text-xs bg-cyan-950/70 text-cyan-300 px-3 py-1 rounded-full border border-cyan-800/40 font-semibold shadow-inner">Active</span>
+                </div>
+
+                <!-- Triage & Routing Badge Card -->
+                <div class="bg-black/40 border border-cyan-950/50 rounded-xl p-4 flex flex-col gap-3.5">
+                    <div class="flex flex-col gap-1.5">
+                        <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Triage Classification</span>
+                        <div id="triage-badge-container" class="flex items-center gap-2.5">
+                            <div class="w-2.5 h-2.5 rounded-full bg-gray-600" id="triage-dot"></div>
+                            <span id="triage-text" class="text-sm font-extrabold text-gray-300 uppercase tracking-widest">NO RUN ACTIVE</span>
+                        </div>
+                    </div>
+                    <div class="w-full h-px bg-cyan-950/40"></div>
+                    <div class="flex flex-col gap-1.5">
+                        <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Routed AI Mode</span>
+                        <div class="flex items-center gap-2.5">
+                            <i data-lucide="cpu" class="w-4 h-4 text-gray-500" id="model-icon"></i>
+                            <span id="model-text" class="text-sm font-extrabold text-gray-500 uppercase tracking-wider mono-font">STANDBY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prompt Block -->
+                <div class="flex flex-col gap-2 bg-black/40 border border-cyan-950/60 p-4 rounded-xl shadow-inner min-h-[8rem] justify-start">
+                    <span class="text-xs text-cyan-500 font-bold uppercase tracking-wider">User Request Prompt</span>
+                    <p id="val-prompt" class="text-sm md:text-base text-gray-200 leading-relaxed font-medium">
+                        Standing by for next user trigger prompt...
+                    </p>
+                </div>
+
+                <!-- Log Stream Module -->
+                <div class="flex flex-col gap-2 flex-grow">
+                    <span class="text-xs text-gray-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                        <i data-lucide="terminal" class="w-3.5 h-3.5 text-cyan-500"></i> Live Process Monitor Log
+                    </span>
+                    <div id="terminal-log" class="bg-black/70 rounded-xl p-4 border border-cyan-950 font-mono text-xs text-cyan-300/90 h-[26rem] overflow-y-auto custom-scrollbar leading-relaxed">
+                        [system] Standing by for live deployment webhook triggers...
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: THE SWARM PROCESSING CORE MATRIX (Center Panel, 4/12) -->
+        <section class="lg:col-span-4 flex flex-col gap-6">
+            <div class="frosted rounded-2xl p-6 flex flex-col gap-6 flex-grow relative">
+                <span class="text-lg font-bold text-cyan-400 flex items-center gap-2 border-b border-cyan-950 pb-4">
+                    <i data-lucide="cpu" class="w-5 h-5 text-cyan-400"></i> ⚙️ BUILDING PROGRESS CORE
+                </span>
+
+                <!-- 1. Master Control Card -->
+                <div id="card-orchestrator" class="bg-black/40 border border-cyan-950 rounded-xl p-4.5 p-4 transition-all duration-300 relative">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-sm font-bold text-cyan-300 flex items-center gap-2">
+                            <i data-lucide="workflow" class="w-4.5 h-4.5 text-cyan-400"></i> Director (Manager Swarm)
+                        </span>
+                        <span id="badge-orchestrator" class="text-[10px] text-gray-500 bg-gray-950 px-2.5 py-1 rounded-full border border-gray-800 font-extrabold uppercase tracking-wider">IDLE</span>
+                    </div>
+                    <div class="text-xs text-gray-300 flex flex-col gap-2 mt-2 leading-relaxed bg-black/25 p-3 rounded-lg border border-cyan-950/40">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Active Worker Swarms:</span>
+                            <span id="val-swarms" class="text-cyan-400 font-extrabold text-sm">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Current Status Profile:</span>
+                            <span id="val-state" class="text-cyan-400 font-extrabold text-sm uppercase tracking-wide">IDLE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Parallel Sub-Worker Card Deck -->
+                <div class="flex flex-col gap-4">
+                    <!-- Node A: Code Creator -->
+                    <div id="card-coder" class="bg-black/40 border border-cyan-950 rounded-xl p-4.5 p-4 transition-all duration-300 flex flex-col justify-between gap-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-bold text-cyan-300 flex items-center gap-2">
+                                    <i data-lucide="code" class="w-4 h-4 text-cyan-400"></i> Code Creator
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-400 leading-normal mt-1">Writes core compiler files and verifies syntax structure.</p>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1.5">
+                                <span class="text-gray-400">Progress</span>
+                                <span id="txt-coder-progress" class="text-cyan-400">0%</span>
+                            </div>
+                            <div class="w-full bg-cyan-950/50 rounded-full h-4 overflow-hidden border border-cyan-900/20 shadow-inner">
+                                <div id="bar-coder-progress" class="bg-gradient-to-r from-cyan-500 to-teal-400 h-4 transition-all duration-300 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Node B: Asset Assembler -->
+                    <div id="card-linker" class="bg-black/40 border border-cyan-950 rounded-xl p-4.5 p-4 transition-all duration-300 flex flex-col justify-between gap-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-bold text-cyan-300 flex items-center gap-2">
+                                    <i data-lucide="link" class="w-4 h-4 text-cyan-400"></i> Asset Assembler
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-400 leading-normal mt-1">Inspects link bindings and resolves path relationships.</p>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1.5">
+                                <span class="text-gray-400">Progress</span>
+                                <span id="txt-linker-progress" class="text-cyan-400">0%</span>
+                            </div>
+                            <div class="w-full bg-cyan-950/50 rounded-full h-4 overflow-hidden border border-cyan-900/20 shadow-inner">
+                                <div id="bar-linker-progress" class="bg-gradient-to-r from-cyan-500 to-teal-400 h-4 transition-all duration-300 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Validation Guardian Card -->
+                <div id="card-critic" class="bg-black/40 border border-cyan-950 rounded-xl p-4 transition-all duration-300 mt-auto">
+                    <div class="flex justify-between items-center mb-3.5">
+                        <span class="text-sm font-bold text-cyan-300 flex items-center gap-2">
+                            <i data-lucide="shield-check" class="w-4.5 h-4.5 text-cyan-400"></i> Quality Checker (Validator)
+                        </span>
+                        <span id="badge-critic" class="text-[10px] text-gray-500 bg-gray-950 px-2.5 py-1 rounded-full border border-gray-800 font-extrabold uppercase tracking-wider">IDLE</span>
+                    </div>
+                    <div class="text-xs text-gray-300 flex flex-col gap-2.5 bg-black/25 p-3 rounded-lg border border-cyan-950/40">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Interactive Behavior Tests</span>
+                            <span id="method-playwright" class="text-gray-500 font-bold">Standby</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Image & Asset Verifications</span>
+                            <span id="method-image" class="text-gray-500 font-bold">Standby</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: THE TARGET KANBAN WORKSPACE VIEW (Right Panel, 4/12) -->
+        <section class="lg:col-span-4 flex flex-col gap-6">
+            <div class="frosted rounded-2xl p-6 flex flex-col gap-4 flex-grow">
+                <span class="text-lg font-bold text-cyan-400 flex items-center gap-2 border-b border-cyan-950 pb-4">
+                    <i data-lucide="kanban" class="w-5 h-5 text-cyan-400"></i> 📋 Workspace Output
+                </span>
+
+                <div class="grid grid-cols-2 gap-4 flex-grow h-[500px]">
+                    <!-- Column 1: Project Plan -->
+                    <div class="bg-black/30 rounded-xl p-3 border border-cyan-950/50 flex flex-col gap-3">
+                        <span class="text-xs font-extrabold text-cyan-400/90 uppercase tracking-wider pb-1 border-b border-cyan-950/40">📋 1. Plan</span>
+                        <div id="col-blueprint" class="flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-1 flex-grow">
+                            <div class="text-xs text-gray-500 text-center py-4">No plan loaded</div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: File Builder -->
+                    <div class="bg-black/30 rounded-xl p-3 border border-cyan-950/50 flex flex-col gap-3">
+                        <span class="text-xs font-extrabold text-cyan-400/90 uppercase tracking-wider pb-1 border-b border-cyan-950/40">🛠️ 2. Build</span>
+                        <div id="col-compile" class="flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-1 flex-grow">
+                            <div class="text-xs text-gray-500 text-center py-4">No files built</div>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Quality Check -->
+                    <div class="bg-black/30 rounded-xl p-3 border border-cyan-950/50 flex flex-col gap-3">
+                        <span class="text-xs font-extrabold text-cyan-400/90 uppercase tracking-wider pb-1 border-b border-cyan-950/40">🔍 3. Check</span>
+                        <div id="col-validate" class="flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-1 flex-grow">
+                            <div class="text-xs text-gray-500 text-center py-4">No checks run</div>
+                        </div>
+                    </div>
+
+                    <!-- Column 4: Launch Site -->
+                    <div class="bg-black/30 rounded-xl p-3 border border-cyan-950/50 flex flex-col gap-3">
+                        <span class="text-xs font-extrabold text-cyan-400/90 uppercase tracking-wider pb-1 border-b border-cyan-950/40">🚀 4. Launch</span>
+                        <div id="col-outlet" class="flex flex-col gap-2 flex-grow overflow-hidden justify-center">
+                            <!-- Workspace Normal View -->
+                            <div id="view-normal" class="flex flex-col gap-3 h-full justify-center items-center text-center p-2">
+                                <i data-lucide="globe" class="w-10 h-10 text-gray-600 mb-1"></i>
+                                <span class="text-xs text-gray-500 leading-relaxed font-medium">All components fully verified and ready.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER HISTORY -->
+    <footer class="frosted rounded-2xl p-5 mt-6">
+        <span class="text-sm font-bold text-cyan-400 flex items-center gap-2 border-b border-cyan-950 pb-3 mb-4">
+            <i data-lucide="history" class="w-4.5 h-4.5 text-cyan-400"></i> 📚 PAST RUN HISTORY
+        </span>
+        <div id="history-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-gray-400">
+            <div class="text-center py-4 text-gray-500 text-sm">No runs tracked in this session</div>
+        </div>
+    </footer>
+
+    <!-- INTERACTION LOGIC SCRIPT -->
+    <script>
+        // DOM Elements
+        const termLog = document.getElementById('terminal-log');
+        const orchestratorCard = document.getElementById('card-orchestrator');
+        const orchestratorBadge = document.getElementById('badge-orchestrator');
+        const coderCard = document.getElementById('card-coder');
+        const coderProgText = document.getElementById('txt-coder-progress');
+        const coderBar = document.getElementById('bar-coder-progress');
+        const linkerCard = document.getElementById('card-linker');
+        const linkerProgText = document.getElementById('txt-linker-progress');
+        const linkerBar = document.getElementById('bar-linker-progress');
+        const criticCard = document.getElementById('card-critic');
+        const criticBadge = document.getElementById('badge-critic');
+        const methodValidate = document.getElementById('method-validate');
+        const methodTriage = document.getElementById('method-triage');
+        const methodPlaywright = document.getElementById('method-playwright');
+        const methodImage = document.getElementById('method-image');
+        const valSwarms = document.getElementById('val-swarms');
+        const valState = document.getElementById('val-state');
+        const viewNormal = document.getElementById('view-normal');
+        const valHighTier = document.getElementById('stat-high-tier');
+        const valSubAgents = document.getElementById('stat-sub-agents');
+        const valPrompt = document.getElementById('val-prompt');
+        const colBlueprint = document.getElementById('col-blueprint');
+        const colCompile = document.getElementById('col-compile');
+        const colValidate = document.getElementById('col-validate');
+        const historyGrid = document.getElementById('history-grid');
+
+        // Triage Badge Elements
+        const triageDot = document.getElementById('triage-dot');
+        const triageText = document.getElementById('triage-text');
+        const modelText = document.getElementById('model-text');
+        const modelIcon = document.getElementById('model-icon');
+
+        let ws = null;
+        let pollingInterval = null;
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        const wsUrl = `${wsProtocol}://${window.location.host}/ws/dashboard?ngrok-skip-browser-warning=true`;
+
+        function updateTriageUI(classification) {
+            if (!classification) {
+                triageDot.className = "w-2.5 h-2.5 rounded-full bg-gray-600";
+                triageText.innerText = "NO RUN ACTIVE";
+                triageText.className = "text-sm font-extrabold text-gray-500 uppercase tracking-widest";
+                return;
+            }
+
+            const cleanClass = classification.toUpperCase();
+            if (cleanClass === "SIMPLE") {
+                triageDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 glow-emerald animate-pulse";
+                triageText.innerText = "SIMPLE BUILD";
+                triageText.className = "text-sm font-extrabold text-emerald-400 uppercase tracking-widest";
+            } else if (cleanClass === "COMPLEX") {
+                triageDot.className = "w-2.5 h-2.5 rounded-full bg-cyan-400 glow-cyan animate-pulse";
+                triageText.innerText = "COMPLEX BUILD";
+                triageText.className = "text-sm font-extrabold text-cyan-400 uppercase tracking-widest";
+            } else if (cleanClass === "AGENT_GENERATION") {
+                triageDot.className = "w-2.5 h-2.5 rounded-full bg-purple-400 glow-purple animate-pulse";
+                triageText.innerText = "AGENT SWARM BUILD";
+                triageText.className = "text-sm font-extrabold text-purple-400 uppercase tracking-widest";
+            } else if (cleanClass === "QA_TESTING") {
+                triageDot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 glow-amber animate-pulse";
+                triageText.innerText = "QA & TESTING BUILD";
+                triageText.className = "text-sm font-extrabold text-amber-400 uppercase tracking-widest";
+            } else {
+                triageDot.className = "w-2.5 h-2.5 rounded-full bg-cyan-400 glow-cyan animate-pulse";
+                triageText.innerText = cleanClass;
+                triageText.className = "text-sm font-extrabold text-cyan-400 uppercase tracking-widest";
+            }
+        }
+
+        function updateModelUI(model) {
+            if (!model) {
+                modelText.innerText = "STANDBY";
+                modelText.className = "text-sm font-extrabold text-gray-500 uppercase tracking-wider mono-font";
+                modelIcon.className = "w-4 h-4 text-gray-500";
+                return;
+            }
+
+            const modelLower = model.toLowerCase();
+            modelText.innerText = model.toUpperCase();
+            
+            if (modelLower.includes("deepseek")) {
+                modelText.className = "text-sm font-extrabold text-teal-400 uppercase tracking-wider mono-font";
+                modelIcon.className = "w-4 h-4 text-teal-400 glow-teal animate-pulse";
+            } else if (modelLower.includes("gemini")) {
+                modelText.className = "text-sm font-extrabold text-cyan-400 uppercase tracking-wider mono-font";
+                modelIcon.className = "w-4 h-4 text-cyan-400 glow-cyan animate-pulse";
+            } else if (modelLower.includes("claude") || modelLower.includes("anthropic")) {
+                modelText.className = "text-sm font-extrabold text-purple-400 uppercase tracking-wider mono-font";
+                modelIcon.className = "w-4 h-4 text-purple-400 glow-purple animate-pulse";
+            } else {
+                modelText.className = "text-sm font-extrabold text-cyan-300 uppercase tracking-wider mono-font";
+                modelIcon.className = "w-4 h-4 text-cyan-300 animate-pulse";
+            }
+        }
+
+        function startWebSocket() {
+            console.log("Connecting to WebSocket telemetry...");
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = async () => {
+                console.log("WebSocket telemetry connected.");
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                    pollingInterval = null;
+                }
+                await fetchLogsAndStats();
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const msg = JSON.parse(event.data);
+                    if (msg.type === 'status') {
+                        updateDashboardUI(msg.data);
+                    } else if (msg.type === 'log') {
+                        appendLogLine(msg.data);
+                    }
+                } catch (err) {
+                    console.error("Error parsing WebSocket message:", err);
+                }
+            };
+
+            ws.onclose = () => {
+                console.warn("WebSocket telemetry disconnected. Falling back to polling...");
+                startPolling();
+            };
+
+            ws.onerror = (err) => {
+                console.error("WebSocket telemetry error:", err);
+            };
+        }
+
+        async function fetchLogsAndStats() {
+            try {
+                const logRes = await fetch('/logs', {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                const logData = await logRes.json();
+                if (logData.logs) {
+                    termLog.innerText = logData.logs.join('');
+                    termLog.scrollTop = termLog.scrollHeight;
+                }
+
+                const statsRes = await fetch('/stats/triage', {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                const statsData = await statsRes.json();
+                if (statsData && statsData.counts) {
+                    const complexVal = (statsData.counts.COMPLEX || 0) + 
+                                       (statsData.counts.AGENT_GENERATION || 0) + 
+                                       (statsData.counts.QA_TESTING || 0);
+                    valHighTier.innerText = complexVal;
+                    valSubAgents.innerText = statsData.counts.SIMPLE || 0;
+                }
+            } catch (err) {
+                console.error("Error fetching logs and stats:", err);
+            }
+        }
+
+        function appendLogLine(line) {
+            termLog.innerText += line;
+            const lines = termLog.innerText.split('\n');
+            if (lines.length > 200) {
+                termLog.innerText = lines.slice(lines.length - 200).join('\n');
+            }
+            termLog.scrollTop = termLog.scrollHeight;
+        }
+
+        async function fetchServerStatus() {
+            try {
+                const res = await fetch('/status/aider', {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                const data = await res.json();
+                updateDashboardUI(data);
+                await fetchLogsAndStats();
+            } catch (err) {
+                console.error("Status fetch failure", err);
+            }
+        }
+
+        function startPolling() {
+            if (!pollingInterval) {
+                pollingInterval = setInterval(fetchServerStatus, 1500);
+                fetchServerStatus();
+            }
+        }
+
+        function updateDashboardUI(data) {
+            valState.innerText = data.status.toUpperCase();
+            if (data.current_prompt) {
+                valPrompt.innerText = `"${data.current_prompt}"`;
+            } else {
+                valPrompt.innerText = "Standing by for next user trigger prompt...";
+            }
+
+            // Update Triage Badge
+            updateTriageUI(data.classification);
+            updateModelUI(data.selected_model);
+
+            // Update Orchestrator and worker cards
+            if (data.status === 'planning') {
+                orchestratorBadge.innerText = "PLANNING";
+                orchestratorBadge.className = "text-[10px] text-amber-300 bg-amber-950 px-2.5 py-1 rounded-full border border-amber-800 font-extrabold uppercase tracking-wider";
+                orchestratorCard.classList.add('border-amber-500/50');
+                orchestratorCard.classList.remove('border-cyan-950');
+                
+                coderProgText.innerText = "0%";
+                coderBar.style.width = "0%";
+                linkerProgText.innerText = "0%";
+                linkerBar.style.width = "0%";
+            } else if (data.status === 'running_swarm') {
+                orchestratorBadge.innerText = "RUNNING";
+                orchestratorBadge.className = "text-[10px] text-emerald-300 bg-emerald-950 px-2.5 py-1 rounded-full border border-emerald-800 font-extrabold uppercase tracking-wider";
+                orchestratorCard.classList.add('border-emerald-500/50');
+                orchestratorCard.classList.remove('border-cyan-950');
+                valSwarms.innerText = data.blueprint ? data.blueprint.tasks.length : "0";
+                
+                let completedCount = data.completed_tasks ? data.completed_tasks.length : 0;
+                let totalCount = data.blueprint ? data.blueprint.tasks.length : 1;
+                let percent = Math.round((completedCount / totalCount) * 100);
+                
+                coderProgText.innerText = `${percent}%`;
+                coderBar.style.width = `${percent}%`;
+                linkerProgText.innerText = `${percent}%`;
+                linkerBar.style.width = `${percent}%`;
+            } else {
+                orchestratorBadge.innerText = "IDLE";
+                orchestratorBadge.className = "text-[10px] text-gray-500 bg-gray-950 px-2.5 py-1 rounded-full border border-gray-900 font-extrabold uppercase tracking-wider";
+                orchestratorCard.classList.remove('border-emerald-500/50', 'border-amber-500/50');
+                orchestratorCard.classList.add('border-cyan-950');
+                valSwarms.innerText = "0";
+                
+                coderProgText.innerText = "0%";
+                coderBar.style.width = "0%";
+                linkerProgText.innerText = "0%";
+                linkerBar.style.width = "0%";
+            }
+
+            // Update Validation Card State
+            if (data.status === 'running_swarm') {
+                criticBadge.innerText = "VALIDATING";
+                criticBadge.className = "text-[10px] text-cyan-300 bg-cyan-950 px-2.5 py-1 rounded-full border border-cyan-800 font-extrabold uppercase tracking-wider";
+                criticCard.classList.add('border-cyan-500/50');
+                criticCard.classList.remove('border-cyan-950');
+                
+                if (data.running_task) {
+                    methodPlaywright.innerHTML = '<span class="text-cyan-400 animate-pulse">Running Tests...</span>';
+                    methodImage.innerHTML = '<span class="text-cyan-400 animate-pulse">Checking Assets...</span>';
+                } else {
+                    methodPlaywright.innerText = "Standby";
+                    methodPlaywright.className = "text-gray-500 font-bold";
+                    methodImage.innerText = "Standby";
+                    methodImage.className = "text-gray-500 font-bold";
+                }
+            } else if (data.completed_tasks && data.completed_tasks.length > 0 && data.status === 'idle') {
+                criticBadge.innerText = "PASSED";
+                criticBadge.className = "text-[10px] text-emerald-300 bg-emerald-950 px-2.5 py-1 rounded-full border border-emerald-800 font-extrabold uppercase tracking-wider";
+                criticCard.classList.remove('border-cyan-950');
+                criticCard.classList.add('border-emerald-500/40');
+                
+                methodPlaywright.innerHTML = '<span class="text-emerald-400 font-bold">✓ Passed</span>';
+                methodImage.innerHTML = '<span class="text-emerald-400 font-bold">✓ Verified</span>';
+            } else {
+                criticBadge.innerText = "IDLE";
+                criticBadge.className = "text-[10px] text-gray-500 bg-gray-950 px-2.5 py-1 rounded-full border border-gray-900 font-extrabold uppercase tracking-wider";
+                criticCard.classList.remove('border-emerald-500/40', 'border-cyan-500/50');
+                criticCard.classList.add('border-cyan-950');
+                
+                methodPlaywright.innerText = "Standby";
+                methodPlaywright.className = "text-gray-500 font-bold";
+                methodImage.innerText = "Standby";
+                methodImage.className = "text-gray-500 font-bold";
+            }
+
+            // Update Kanban Board
+            if (data.blueprint) {
+                // 1. Blueprint Column
+                colBlueprint.innerHTML = `
+                    <div class="bg-cyan-950/20 border border-cyan-900/30 p-2.5 rounded-lg text-xs flex flex-col gap-1 shadow-md">
+                        <div class="text-cyan-400 font-bold flex items-center gap-1.5">
+                            <i data-lucide="file-json" class="w-4 h-4"></i> blueprint.json
+                        </div>
+                        <div class="text-gray-400 text-[10px] font-semibold">Total tasks: ${data.blueprint.tasks.length}</div>
+                    </div>
+                `;
+                
+                // 2. Compile Column
+                let compileHTML = "";
+                data.blueprint.tasks.forEach(task => {
+                    let statusColor = "text-gray-400 border-cyan-950/60 bg-black/20";
+                    let spinner = "";
+                    if (data.completed_tasks.includes(task.task_id)) {
+                        statusColor = "text-emerald-400 border-emerald-950 bg-emerald-950/15";
+                    } else if (data.failed_tasks.includes(task.task_id)) {
+                        statusColor = "text-red-400 border-red-950 bg-red-950/15";
+                    } else if (data.running_task === task.task_id) {
+                        statusColor = "text-cyan-400 border-cyan-500/50 bg-cyan-950/10 animate-pulse";
+                        spinner = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i>`;
+                    }
+                    compileHTML += `
+                        <div class="border ${statusColor} p-2.5 rounded-lg text-xs flex flex-col gap-1.5 shadow-md">
+                            <div class="font-bold flex justify-between items-center">
+                                <span>${task.task_id}</span>
+                                ${spinner}
+                            </div>
+                            <div class="text-gray-500 text-[10px] font-medium truncate">${task.target_files.join(', ')}</div>
+                        </div>
+                    `;
+                });
+                colCompile.innerHTML = compileHTML;
+
+                // 3. Validate Column
+                let validateHTML = "";
+                if (data.status === 'running_swarm' && data.running_task) {
+                    validateHTML = `
+                        <div class="border border-cyan-950 bg-cyan-950/20 p-2.5 rounded-lg text-xs flex flex-col gap-1.5 animate-pulse shadow-md">
+                            <div class="font-bold text-cyan-400 flex items-center gap-1.5">
+                                <i data-lucide="flask-conical" class="w-4 h-4 animate-bounce"></i> Testing Run...
+                            </div>
+                            <div class="text-gray-500 text-[10px] font-medium">Browser E2E checks actively running.</div>
+                        </div>
+                    `;
+                } else if (data.completed_tasks.length > 0 && data.status === 'idle') {
+                    validateHTML = `
+                        <div class="border border-emerald-950 bg-emerald-950/15 p-2.5 rounded-lg text-xs flex flex-col gap-1.5 shadow-md">
+                            <div class="font-bold text-emerald-400 flex items-center gap-1.5">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Code Validated
+                            </div>
+                            <div class="text-gray-500 text-[10px] leading-tight font-medium">All E2E validation checks successfully passed.</div>
+                        </div>
+                    `;
+                } else {
+                    validateHTML = `<div class="text-xs text-gray-500 text-center py-4">No tests running</div>`;
+                }
+                colValidate.innerHTML = validateHTML;
+
+                // 4. Outlet Link Column
+                if (data.status === 'idle' && data.completed_tasks.length > 0) {
+                    let finalUrl = `${window.location.origin}/workspace/index.html`;
+                    viewNormal.innerHTML = `
+                        <div class="flex flex-col gap-3.5 h-full justify-center items-center text-center p-2">
+                            <i data-lucide="globe" class="w-10 h-10 text-emerald-500 glow-emerald animate-pulse"></i>
+                            <span class="text-xs text-emerald-400 font-extrabold uppercase tracking-wide">Deployment Ready!</span>
+                            <a href="${finalUrl}" target="_blank" class="bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-extrabold py-2 px-4 rounded-xl text-xs transition-all transform hover:scale-105 shadow-lg shadow-emerald-950/50 uppercase tracking-wider">OPEN ACTIVE SITE</a>
+                        </div>
+                    `;
+                }
+            } else {
+                colBlueprint.innerHTML = `<div class="text-xs text-gray-500 text-center py-4">No plan loaded</div>`;
+                colCompile.innerHTML = `<div class="text-xs text-gray-500 text-center py-4">No files built</div>`;
+                colValidate.innerHTML = `<div class="text-xs text-gray-500 text-center py-4">No checks run</div>`;
+                viewNormal.innerHTML = `
+                    <div class="flex flex-col gap-2 h-full justify-center items-center text-center p-2">
+                        <i data-lucide="globe" class="w-10 h-10 text-gray-600 mb-2"></i>
+                        <span class="text-xs text-gray-500 leading-relaxed font-medium">All components fully verified and ready.</span>
+                    </div>
+                `;
+            }
+
+            // Update Run History
+            if (data.history && data.history.length > 0) {
+                let historyHTML = "";
+                data.history.forEach((run, index) => {
+                    let statusColor = run.status === 'success' ? 'text-emerald-400 border-emerald-950 bg-emerald-950/15' : 'text-red-400 border-red-950 bg-red-950/15';
+                    let linkHTML = run.output_url ? `<a href="${run.output_url}" target="_blank" class="text-cyan-400 hover:underline font-bold">Link</a>` : 'N/A';
+                    
+                    // Badges for classification and model if present
+                    let triageBadge = "";
+                    if (run.classification) {
+                        let badgeColor = "bg-gray-800 text-gray-400 border-gray-700";
+                        if (run.classification.toUpperCase() === "SIMPLE") badgeColor = "bg-emerald-950/40 text-emerald-400 border-emerald-900/35";
+                        else if (run.classification.toUpperCase() === "COMPLEX") badgeColor = "bg-cyan-950/40 text-cyan-400 border-cyan-900/35";
+                        else if (run.classification.toUpperCase() === "AGENT_GENERATION") badgeColor = "bg-purple-950/40 text-purple-400 border-purple-900/35";
+                        else if (run.classification.toUpperCase() === "QA_TESTING") badgeColor = "bg-amber-950/40 text-amber-400 border-amber-900/35";
+                        
+                        triageBadge = `<span class="text-[9px] px-1.5 py-0.5 rounded border ${badgeColor} font-bold uppercase tracking-wider">${run.classification}</span>`;
+                    }
+                    
+                    let modelBadge = "";
+                    if (run.selected_model) {
+                        let modelLower = run.selected_model.toLowerCase();
+                        let badgeColor = "bg-cyan-950/20 text-cyan-300 border-cyan-900/30";
+                        if (modelLower.includes("deepseek")) badgeColor = "bg-teal-950/40 text-teal-400 border-teal-900/35";
+                        else if (modelLower.includes("gemini")) badgeColor = "bg-cyan-950/40 text-cyan-400 border-cyan-900/35";
+                        else if (modelLower.includes("claude") || modelLower.includes("anthropic")) badgeColor = "bg-purple-950/40 text-purple-400 border-purple-900/35";
+                        
+                        // Extract short name of the model if too long
+                        let displayModel = run.selected_model.split("/").pop().toUpperCase();
+                        modelBadge = `<span class="text-[9px] px-1.5 py-0.5 rounded border ${badgeColor} font-mono font-medium">${displayModel}</span>`;
+                    }
+
+                    historyHTML += `
+                        <div class="border ${statusColor} rounded-xl p-4 flex justify-between items-center shadow-md">
+                            <div class="flex flex-col gap-1.5 pr-4 flex-grow min-w-0">
+                                <span class="font-extrabold text-gray-300">Run #${index + 1}</span>
+                                <span class="text-[11px] text-gray-400 truncate font-medium block" title="${run.prompt}">${run.prompt}</span>
+                                <div class="flex flex-wrap gap-1.5 mt-0.5">
+                                    ${triageBadge}
+                                    ${modelBadge}
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-end gap-1.5 font-mono text-[10px] shrink-0">
+                                <div>Time: ${run.duration_seconds}s</div>
+                                <div>Site: ${linkHTML}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                historyGrid.innerHTML = historyHTML;
+            } else {
+                historyGrid.innerHTML = `<div class="col-span-3 text-center py-4 text-gray-500 text-sm">No runs tracked in this session</div>`;
+            }
+
+            // Render newly created lucide icons inside dynamically generated HTML
+            lucide.createIcons();
+        }
+
+        // Initialize lucide
+        lucide.createIcons();
+
+        // Start WebSocket telemetry connection with polling fallback
+        startWebSocket();
+    </script>
+</body>
+</html>

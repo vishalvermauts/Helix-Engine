@@ -1,0 +1,53 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - git
+  - python3-pip
+  - python3-venv
+  - build-essential
+  - curl
+  - wget
+  - jq
+
+users:
+  - default
+  - name: helix
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+
+write_files:
+  - path: /etc/systemd/system/helix-engine.service
+    content: |
+      [Unit]
+      Description=Helix Engine FastAPI Server
+      After=network.target
+
+      [Service]
+      User=helix
+      WorkingDirectory=/opt/helix-engine
+      Environment="PATH=/opt/helix-engine/venv/bin"
+      ExecStart=/opt/helix-engine/venv/bin/uvicorn server:app --host 0.0.0.0 --port 8000
+      Restart=always
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  # 1. Install Cloudflared for secure tunnel
+  - curl -L --output /tmp/cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+  - dpkg -i /tmp/cloudflared.deb
+  
+  # 2. Set up /opt/helix-engine ownership
+  - mkdir -p /opt/helix-engine
+  - chown -R helix:helix /opt/helix-engine
+  
+  # 3. Optimize RAM disk for Episodic Memory and Tree-sitter
+  # /dev/shm is already a tmpfs on Ubuntu, but we explicitly set a generous size limit
+  - mount -o remount,size=512M /dev/shm
+  
+  # Note: The repository cloning, .env setup, and Python pip installs 
+  # must be done manually via SSH since we need your private API keys 
+  # and potentially private GitHub tokens to clone.
